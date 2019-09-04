@@ -59,3 +59,51 @@ module.exports = function () {
 ```bash
 $ node main.js
 ```
+
+### 完整示例
+
+例如有以下目录
+
+```txt
+- /home/user/hello/
+    - util/
+        counter.js
+    main.js
+
+```
+
+其中counter.js内容如下：
+
+```js
+var i = 0;
+
+function count() {
+    return ++i;
+}
+
+exports.count = count;
+```
+
+该模块内部定义了一个私有变量i，并在exports对象导出了一个公有方法count。
+
+主模块main.js内容如下：
+
+```js
+var counter1 = require('./util/counter');
+var counter2 = require('./util/counter');
+
+console.log(counter1.count());
+console.log(counter2.count());
+console.log(counter2.count());
+```
+
+运行该程序的结果如下：
+
+```txt
+$ node main.js
+1
+2
+3
+```
+
+可以看到，counter.js并没有因为被require了两次而初始化两次。
