@@ -103,5 +103,21 @@ var cat = require('/home/user/lib/cat/index');
 
 如此一来，就同样可以使用require('/home/user/lib/cat')的方式加载模块。NodeJS会根据包目录下的package.json找到入口模块所在位置。
 
+## 命令行程序
 
+使用NodeJS编写的东西，要么是一个包，要么是一个命令行程序，而前者最终也会用于开发后者。因此我们在部署代码时需要一些技巧，让用户觉得自己是在使用一个命令行程序。
+
+例如我们用NodeJS写了个程序，可以把命令行参数原样打印出来。该程序很简单，在主模块内实现了所有功能。并且写好后，我们把该程序部署在/home/user/bin/node-echo.js这个位置。为了在任何目录下都能运行该程序，我们需要使用以下终端命令。
+
+```bash
+$ node /home/user/bin/node-echo.js Hello World
+
+Hello World
+```
+
+这种使用方式看起来不怎么像是一个命令行程序，下边的才是我们期望的方式。
+
+```bash
+$ node-echo Hello World
+```
 
