@@ -121,7 +121,7 @@ Hello World
 $ node-echo Hello World
 ```
 
-## Linux
+### Linux
 
 在Linux系统下，我们可以把JS文件当作shell脚本来运行，从而达到上述目的，具体步骤如下：
 
@@ -143,6 +143,16 @@ $ chmod +x /home/user/bin/node-echo.js
 
 ```bash
 $ sudo ln -s /home/user/bin/node-echo.js /usr/local/bin/node-echo
+```
+
+这样处理后，我们就可以在任何目录下使用node-echo命令了。
+
+### Windows
+
+在Windows系统下的做法完全不同，我们得靠.cmd文件来解决问题。假设node-echo.js存放在C:\Users\user\bin目录，并且该目录已经添加到PATH环境变量里了。接下来需要在该目录下新建一个名为node-echo.cmd的文件，文件内容如下：
+
+```bash
+@node "C:\User\user\bin\node-echo.js" %*
 ```
 
 这样处理后，我们就可以在任何目录下使用node-echo命令了。
