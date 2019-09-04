@@ -1,0 +1,22 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "node ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/berlinen/nodeJs.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "berlin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/berlinen/nodeJs/issues"
+  },
+  "homepage": "https://github.com/berlinen/nodeJs#readme"
+}
