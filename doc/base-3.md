@@ -175,6 +175,30 @@ $ sudo ln -s /home/user/bin/node-echo.js /usr/local/bin/node-echo
     README.md                       # 说明文件
 ```
 
+其中部分文件内容如下：
+
+```js
+/* bin/node-echo */
+var argv = require('argv'),
+    echo = require('../lib/echo');
+console.log(echo(argv.join(' ')));
+
+/* lib/echo.js */
+module.exports = function (message) {
+    return message;
+};
+
+/* package.json */
+{
+    "name": "node-echo",
+    "main": "./lib/echo.js"
+}
+```
+
+以上例子中分类存放了不同类型的文件，并通过node_moudles目录直接使用三方包名加载模块。此外，定义了package.json之后，node-echo目录也可被当作一个包来使用。
+
+
+
 
 
 
