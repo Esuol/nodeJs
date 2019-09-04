@@ -62,3 +62,18 @@ exports.create = function (name) {
     };
 };
 ```
+
+在其它模块里使用包的时候，需要加载包的入口模块。接着上例，使用require('/home/user/lib/cat/main')能达到目的，但是入口模块名称出现在路径里看上去不是个好主意。因此我们需要做点额外的工作，让包使用起来更像是单个模块。
+
+index.js
+
+当模块的文件名是index.js，加载模块时可以使用模块所在目录的路径代替模块文件路径，因此接着上例，以下两条语句等价。
+
+```js
+var cat = require('/home/user/lib/cat');
+var cat = require('/home/user/lib/cat/index');
+```
+
+这样处理后，就只需要把包目录路径传递给require函数，感觉上整个目录被当作单个模块使用，更有整体感。
+
+
