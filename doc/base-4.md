@@ -157,6 +157,42 @@ rs.on('end', () => {
 
 此外，我们也可以为数据目标创建一个只写数据流，示例如下：
 
+```js
+const rs = fs.createReadStream(src)
+const ws = fs.createWriteStream(dst)
+
+rs.on('data', chunk => {
+  ws.write(chunk)
+})
+
+rs.on('end', () => {
+  ws.end
+})
+```
+
+我们把doSomething换成了往只写数据流里写入数据后，以上代码看起来就像是一个文件拷贝程序了。但是以上代码存在上边提到的问题，如果写入速度跟不上读取速度的话，只写数据流内部的缓存会爆仓。我们可以根据.write方法的返回值来判断传入的数据是写入目标了，还是临时放在了缓存了，并根据drain事件来判断什么时候只写数据流已经将缓存中的数据写入目标，可以传入下一个待写数据了。因此代码可以改造如下：
+
+```js
+const rs = fs.createReadStream(src)
+const ws = fs.createWriteStream(dst)
+
+rs.on('data', chunk => {
+  if(ws.write(chuk) === false) {
+    rs.pause()
+  }
+})
+
+rs.on('end', () => {
+  ws.end()
+})
+
+ws.on('drain', () => {
+  rs.resume()
+})
+```
+
+以上代码实现了数据从只读数据流到只写数据流的搬运，并包括了防爆仓控制。因为这种使用场景很多，例如上边的大文件拷贝程序，NodeJS直接提供了.pipe方法来做这件事情，其内部实现方式与上边的代码类似。
+
 
 
 
