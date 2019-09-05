@@ -283,6 +283,26 @@ $ npm install node-echo -g
     ...
 ```
 
+### 发布代码
+
+第一次使用NPM发布代码前需要注册一个账号。终端下运行npm adduser，之后按照提示做即可。账号搞定后，接着我们需要编辑package.json文件，加入NPM必需的字段。接着上边node-echo的例子，package.json里必要的字段如下。
+
+```json
+{
+    "name": "node-echo",           # 包名，在NPM服务器上须要保持唯一
+    "version": "1.0.0",            # 当前版本号
+    "dependencies": {              # 三方包依赖，需要指定包名和版本号
+        "argv": "0.0.2"
+      },
+    "main": "./lib/echo.js",       # 入口模块位置
+    "bin" : {
+        "node-echo": "./bin/node-echo"      # 命令行程序名和主模块位置
+    }
+}
+```
+
+之后，我们就可以在package.json所在目录下运行npm publish发布代码了。
+
 
 
 
