@@ -116,6 +116,49 @@ console.log(dup); // => <Buffer 48 65 65 6c 6f>
 
 总之，Buffer将JS的数据处理能力从字符串扩展到了任意二进制数据。
 
+## Stream
+
+当内存中无法一次装下需要处理的数据时，或者一边读取一边处理更加高效时，我们就需要用到数据流。NodeJS中通过各种Stream来提供对数据流的操作。
+
+以上边的大文件拷贝程序为例，我们可以为数据来源创建一个只读数据流，示例如下：
+
+```js
+var rs = fs.createReadStream(pathname)
+
+rs.on('data', (chunk) => {
+  dosomething(chunk)
+})
+
+rs.on('end', () => {
+  cleanUp()
+})
+```
+
+豆知识： Stream基于事件机制工作，所有Stream的实例都继承于NodeJS提供的EventEmitter。
+
+上边的代码中data事件会源源不断地被触发，不管doSomething函数是否处理得过来。代码可以继续做如下改造，以解决这个问题。
+
+```js
+var rs = fs.createReadStream(src)
+
+rs.on('data', (chunk) => {
+  rs.pause()
+  dosomething(chunk, () => {
+    re.resume()
+  })
+})
+
+rs.on('end', () => {
+  cleanUp()
+})
+```
+
+以上代码给doSomething函数加上了回调，因此我们可以在处理数据前暂停数据读取，并在处理数据后继续读取数据。
+
+此外，我们也可以为数据目标创建一个只写数据流，示例如下：
+
+
+
 
 
 
