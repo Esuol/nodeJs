@@ -195,7 +195,7 @@ ws.on('drain', () => {
 
 ## File System（文件系统）
 
-NodeJS通过fs内置模块提供对文件的操作。fs模块提供的API基本上可以分为以下三类：
+### NodeJS通过fs内置模块提供对文件的操作。fs模块提供的API基本上可以分为以下三类：
 
 1. 文件属性读写。
 
@@ -242,8 +242,61 @@ fs.stat("./wenjian.txt",function(err,stats){
     console.log(stats.isDirectory())
 })
 ```
+### fs.unlink
+
+```js
+// 假设 'path/file.txt' 是常规文件。
+fs.unlink('path/file.txt', (err) => {
+  if (err) throw err;
+  console.log('文件已删除');
+});
+```
 
 ### fs.chmod
+
+该方法以异步的方式来改写文件的读写权限。
+
+操作完成后的回调只接收一个参数，可能会出现异常信息。
+
+```js
+fs.chmod(path, mode, callback)
+/**
+ *1. path      文件路径
+ *2. mode      读写权限（如：777）
+ *3. callback  回调
+ */
+```
+
+NodeJS最精华的异步IO模型在fs模块里有着充分的体现，例如上边提到的这些API都通过回调函数传递结果。以fs.readFile为例：
+
+```js
+fs.readFile(pathname, (err, data) => {
+  if(err) {
+    // deal with error
+  } else {
+    // deal with data
+  }
+})
+```
+
+如上边代码所示，基本上所有fs模块API的回调参数都有两个。第一个参数在有错误发生时等于异常对象，第二个参数始终用于返回API方法执行结果。
+
+此外，fs模块的所有异步API都有对应的同步版本，用于无法使用异步操作时，或者同步操作更方便时的情况。同步API除了方法名的末尾多了一个Sync之外，异常对象与执行结果的传递方式也有相应变化。同样以fs.readFileSync为例：
+
+```js
+try {
+  const data = fs.readFileSync(pathname)
+  // deal with data
+} catch (err) {
+  // deal with data
+}
+```
+
+fs模块提供的API很多，这里不一一介绍，需要时请自行查阅官方文档。
+
+
+
+
 
 
 
