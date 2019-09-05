@@ -211,6 +211,52 @@ module.exports = function (message) {
 
 ### 下载三方包
 
+需要使用三方包时，首先得知道有哪些包可用。虽然npmjs.org提供了个搜索框可以根据包名来搜索，但如果连想使用的三方包的名字都不确定的话，就请百度一下吧。知道了包名后，比如上边例子中的argv，就可以在工程目录下打开终端，使用以下命令来下载三方包。
+
+```bash
+$ npm install argv
+...
+argv@0.0.2 node_modules\argv
+```
+
+下载好之后，argv包就放在了工程目录下的node_modules目录中，因此在代码中只需要通过require('argv')的方式就好，无需指定三方包路径。
+
+以上命令默认下载最新版三方包，如果想要下载指定版本的话，可以在包名后边加上@<version>，例如通过以下命令可下载0.0.1版的argv。
+
+```bash
+$ npm install argv@0.0.1
+...
+argv@0.0.1 node_modules\argv
+```
+
+如果使用到的三方包比较多，在终端下一个包一条命令地安装未免太人肉了。因此NPM对package.json的字段做了扩展，允许在其中申明三方包依赖。因此，上边例子中的package.json可以改写如下：
+
+```json
+{
+    "name": "node-echo",
+    "main": "./lib/echo.js",
+    "dependencies": {
+        "argv": "0.0.2"
+    }
+}
+```
+
+这样处理后，在工程目录下就可以使用npm install命令批量安装三方包了。更重要的是，当以后node-echo也上传到了NPM服务器，别人下载这个包时，NPM会根据包中申明的三方包依赖自动下载进一步依赖的三方包。例如，使用npm install node-echo命令时，NPM会自动创建以下目录结构。
+
+```txt
+- project/
+    - node_modules/
+        - node-echo/
+            - node_modules/
+                + argv/
+            ...
+    ...
+```
+
+如此一来，用户只需关心自己直接使用的三方包，不需要自己去解决所有包的依赖关系。
+
+
+
 
 
 
