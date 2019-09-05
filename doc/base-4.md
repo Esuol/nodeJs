@@ -326,6 +326,17 @@ console.log(cache);  // => { "foo/bar": 2 }
 path.join('foo/', 'baz/', '../bar') // "foo/bar"
 ```
 
+### path.extname
+
+当我们需要根据不同文件扩展名做不同操作时，该方法就显得很好用。以下是一个例子：
+
+```js
+path.extname('foo/bar.js'); // => ".js"
+```
+
+path模块提供的其余方法也不多，稍微看一下官方文档就能全部掌握。
+
+### 
 
 
 
