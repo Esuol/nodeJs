@@ -255,6 +255,33 @@ argv@0.0.1 node_modules\argv
 
 如此一来，用户只需关心自己直接使用的三方包，不需要自己去解决所有包的依赖关系。
 
+### 安装命令行程序
+
+从NPM服务上下载安装一个命令行程序的方法与三方包类似。例如上例中的node-echo提供了命令行使用方式，只要node-echo自己配置好了相关的package.json字段，对于用户而言，只需要使用以下命令安装程序。
+
+```bash
+$ npm install node-echo -g
+```
+
+参数中的-g表示全局安装，因此node-echo会默认安装到以下位置，并且NPM会自动创建好Linux系统下需要的软链文件或Windows系统下需要的.cmd文件。
+
+```txt
+- /usr/local/               # Linux系统下
+    - lib/node_modules/
+        + node-echo/
+        ...
+    - bin/
+        node-echo
+        ...
+    ...
+
+- %APPDATA%\npm\            # Windows系统下
+    - node_modules\
+        + node-echo\
+        ...
+    node-echo.cmd
+    ...
+```
 
 
 
