@@ -4,5 +4,30 @@
 
 ## 开门红
 
+NodeJS提供了基本的文件操作API，但是像文件拷贝这种高级功能就没有提供，因此我们先拿文件拷贝程序练手。与copy命令类似，我们的程序需要能接受源文件路径与目标文件路径两个参数。
+
+### 小文件拷贝
+
+我们使用NodeJS内置的fs模块简单实现这个程序如下。
+
+```js
+const fs = require('fs')
+
+function copy (src, dst) {
+  fs.writeFileSync(dst, fs.readFileSync(src))
+}
+
+function main (argv) {
+  copy(argv[0], argv[1])
+}
+
+main(process.argv.slice(2))
+```
+
+以上程序使用fs.readFileSync从源路径读取文件内容，并使用fs.writeFileSync将文件内容写入目标路径。
+
+豆知识： process是一个全局变量，《可通过process.argv获得命令行参》《由于argv[0]固定等于NodeJS执行程序的绝对路径》，《argv[1]固定等于主模块的绝对路径》，因此第一个命令行参数从argv[2]这个位置开始。
+
+
 
 
