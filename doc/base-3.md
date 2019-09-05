@@ -317,6 +317,26 @@ $ npm install node-echo -g
 + 如果有大变动，向下不兼容，需要更新X位。
 ```
 
+### 灵机一点
+
+除了本章介绍的部分外，NPM还提供了很多功能，package.json里也有很多其它有用的字段。除了可以在npmjs.org/doc/查看官方文档外，这里再介绍一些NPM常用命令。
+
+1. NPM提供了很多命令，例如install和publish，使用npm help可查看所有命令。
+
+2. 使用npm help <command>可查看某条命令的详细帮助，例如npm help install。
+
+3. 在package.json所在目录下使用npm install . -g可先在本地安装当前命令行程序，可用于发布前的本地测试。
+
+4. 使用npm update <package>可以把当前目录下node_modules子目录里边的对应模块更新至最新版本。
+
+5. 使用npm update <package> -g可以把全局安装的对应命令行程序更新至最新版。
+
+6. 使用npm cache clear可以清空NPM本地缓存，用于对付使用相同版本号发布新版本代码的人。
+
+7. 使用npm unpublish <package>@<version>可以撤销发布自己发布过的某个版本代码。
+
+
+
 
 
 
