@@ -122,3 +122,37 @@ request.end()
 ```
 
 可以看到，.request方法创建了一个客户端，并指定请求目标和请求头数据。之后，就可以把request对象当作一个只写数据流来写入请求体数据和结束请求。另外，由于HTTP请求中GET请求是最常见的一种，并且不需要请求体，因此http模块也提供了以下便捷API。
+
+```js
+http.get('http://www.example.com/', function (response) {});
+```
+
+当客户端发送请求并接收到完整的服务端响应头时，就会调用回调函数。在回调函数中，除了可以使用response对象访问响应头数据外，还能把response对象当作一个只读数据流来访问响应体数据。以下是一个例子。
+
+```js
+http.get('http://www.example.com', (res) => {
+  var body = []
+
+  console.log(res.statusCode)
+  console.log(res.headers)
+
+  res.on('data', (chunk) => {
+    body.push(chunk)
+  })
+
+  res.on('end', () => {
+    body = Buffer.concat(body)
+    console.log(body.toString())
+  })
+})
+
+------------------------------------
+200
+{ 'content-type': 'text/html',
+  server: 'Apache',
+  'content-length': '801',
+  date: 'Tue, 05 Nov 2013 06:08:41 GMT',
+  connection: 'keep-alive' }
+<!DOCTYPE html>
+
+```
