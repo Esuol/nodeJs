@@ -412,6 +412,43 @@ travel('/home/user', function (pathname) {
 /home/user/z.css
 ```
 
+### 异步遍历
+
+如果读取目录或读取文件状态时使用的是异步API，目录遍历函数实现起来会有些复杂，但原理完全相同。travel函数的异步版本如下。
+
+```js
+function travel(dir, callback, finish) {
+  fs.readdir(dir, function(err,files) {
+    (
+      function next(i) {
+        if (i < files.length) {
+          var pathname = path.join(dir, files[i])
+
+          fs.stat(pathname, function(err, stats) {
+            if(stats.isDirectory()) {
+              travel(pathname, callback, function() {
+                next(i + 1)
+              })
+            } else {
+              callback(pathname, function() {
+                next(i + 1)
+              })
+            }
+          })
+        } else {
+            finish && finish();
+        }
+      }
+    )(0)
+  })
+}
+```
+
+这里不详细介绍异步遍历函数的编写技巧，在后续章节中会详细介绍这个。总之我们可以看到异步编程还是蛮复杂的。
+
+
+
+
 
 
 
