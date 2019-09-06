@@ -481,14 +481,40 @@ function readText(pathname) {
 NodeJS支持在读取文本文件时，或者在Buffer转换为字符串时指定文本编码，但遗憾的是，GBK编码不在NodeJS自身支持范围内。因此，一般我们借助iconv-lite这个三方包来转换编码。使用NPM下载该包后，我们可以按下边方式编写一个读取GBK文本文件的函数。
 
 ```js
-var iconv = require('iconv-lite');
+var iconv = require('iconv-lite')
 
 function readGBKText(pathname) {
-    var bin = fs.readFileSync(pathname);
+  var bin = fs.readFileSync(pathname)
 
-    return iconv.decode(bin, 'gbk');
+  return  iconv.decode(bin, 'gbk')
 }
 ```
+
+### 单子节编码
+
+有时候，我们无法预知需要读取的文件采用哪种编码，因此也就无法指定正确的编码。比如我们要处理的某些CSS文件中，有的用GBK编码，有的用UTF8编码。虽然可以一定程度可以根据文件的字节内容猜测出文本编码，但这里要介绍的是有些局限，但是要简单得多的一种技术。
+
+首先我们知道，如果一个文本文件只包含英文字符，比如Hello World，那无论用GBK编码或是UTF8编码读取这个文件都是没问题的。这是因为在这些编码下，ASCII0~128范围内字符都使用相同的单字节编码。
+
+反过来讲，即使一个文本文件中有中文等字符，如果我们需要处理的字符仅在ASCII0~128范围内，比如除了注释和字符串以外的JS代码，我们就可以统一使用单字节编码来读取文件，不用关心文件的实际编码是GBK还是UTF8。以下示例说明了这种方法。
+
+```js
+1. GBK编码源文件内容：
+    var foo = '中文';
+2. 对应字节：
+    76 61 72 20 66 6F 6F 20 3D 20 27 D6 D0 CE C4 27 3B
+3. 使用单字节编码读取后得到的内容：
+    var foo = '{乱码}{乱码}{乱码}{乱码}';
+4. 替换内容：
+    var bar = '{乱码}{乱码}{乱码}{乱码}';
+5. 使用单字节编码保存后对应字节：
+    76 61 72 20 62 61 72 20 3D 20 27 D6 D0 CE C4 27 3B
+6. 使用GBK编码读取后得到内容：
+    var bar = '中文';
+```
+
+
+
 
 
 
