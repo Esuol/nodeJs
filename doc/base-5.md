@@ -309,3 +309,35 @@ querystring.stringify({ foo: 'bar', baz: ['qux', 'quux'], corge: '' });
 */
 
 ```
+
+## Zlib
+
+zlib模块提供了数据压缩和解压的功能。当我们处理HTTP请求和响应时，可能需要用到这个模块。
+
+首先我们看一个使用zlib模块压缩HTTP响应体数据的例子。这个例子中，判断了客户端是否支持gzip，并在支持的情况下使用zlib模块返回gzip之后的响应体数据。
+
+```js
+http.createServer((req, res) => {
+  var i = 1024,
+      data = ''
+
+  while(i--) {
+    data += '.'
+  }
+
+  if((req.headers['accept-encoding'] || '').indexOf('gzip') !== -1) {
+    zlip.gzip(data, (err, data) => {
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Content-Encoding': 'gzip'
+      })
+      res.end(data)
+    })
+  } else {
+    res.writeHead(200, {
+       'Content-Type': 'text/plain'
+    })
+    res.end(data)
+  }
+}).listen(80)
+```
