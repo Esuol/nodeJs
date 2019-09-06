@@ -370,6 +370,47 @@ function factorial (n) {
       D   E   F
 ```
 
+### 同步遍历
+
+了解了必要的算法后，我们可以简单地实现以下目录遍历函数。
+
+```js
+function travel(dir, callback) {
+  fs.readdirSync(dir).forEach((file) => {
+    const pathname = path.join(dir, file)
+
+    if(fs.statSync(pathname).isDirectory()) {
+      travel(pathname, callback)
+    } else {
+      callback(pathname)
+    }
+  })
+}
+```
+
+可以看到，该函数以某个目录作为遍历的起点。遇到一个子目录时，就先接着遍历子目录。遇到一个文件时，就把文件的绝对路径传给回调函数。回调函数拿到文件路径后，就可以做各种判断和处理。因此假设有以下目录：
+
+```txt
+- /home/user/
+    - foo/
+        x.js
+    - bar/
+        y.js
+    z.css
+```
+
+使用以下代码遍历该目录时，得到的输入如下。
+
+```js
+travel('/home/user', function (pathname) {
+    console.log(pathname);
+});
+
+------------------------
+/home/user/foo/x.js
+/home/user/bar/y.js
+/home/user/z.css
+```
 
 
 
