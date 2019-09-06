@@ -222,3 +222,45 @@ protocol     auth     hostname   port pathname     search     hash
                                                 ------------
                                                    query
 ```
+
+我们可以使用.parse方法来将一个URL字符串转换为URL对象，示例如下。
+
+```js
+url.parse('http://user:pass@host.com:8080/p/a/t/h?query=string#hash');
+/* =>
+{ protocol: 'http:',
+  auth: 'user:pass',
+  host: 'host.com:8080',
+  port: '8080',
+  hostname: 'host.com',
+  hash: '#hash',
+  search: '?query=string',
+  query: 'query=string',
+  pathname: '/p/a/t/h',
+  path: '/p/a/t/h?query=string',
+  href: 'http://user:pass@host.com:8080/p/a/t/h?query=string#hash' }
+*/
+```
+
+传给.parse方法的不一定要是一个完整的URL，例如在HTTP服务器回调函数中，request.url不包含协议头和域名，但同样可以用.parse方法解析。
+
+```js
+http.createServer((req, res) => {
+  var tmp = req.url  // foo/bar?a=b
+  url.parse(tmp);
+   /* =>
+    { protocol: null,
+      slashes: null,
+      auth: null,
+      host: null,
+      port: null,
+      hostname: null,
+      hash: null,
+      search: '?a=b',
+      query: 'a=b',
+      pathname: '/foo/bar',
+      path: '/foo/bar?a=b',
+      href: '/foo/bar?a=b' }
+    */
+}).listen(80)
+```
