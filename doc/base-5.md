@@ -27,3 +27,49 @@ http.createServer((res, rep) => {
 
 2. 作为客户端使用时，发起一个HTTP客户端请求，获取服务端响应。
 
+首先我们来看看服务端模式下如何工作。如开门红中的例子所示，首先需要使用.createServer方法创建一个服务器，然后调用.listen方法监听端口。之后，每当来了一个客户端请求，创建服务器时传入的回调函数就被调用一次。可以看出，这是一种事件机制。
+
+HTTP请求本质上是一个数据流，由请求头（headers）和请求体（body）组成。例如以下是一个完整的HTTP请求数据内容。
+
+```txt
+POST / HTTP/1.1
+User-Agent: curl/7.26.0
+Host: localhost
+Accept: */*
+Content-Length: 11
+Content-Type: application/x-www-form-urlencoded
+
+Hello World
+```
+
+可以看到，空行之上是请求头，之下是请求体。HTTP请求在发送给服务器时，可以认为是按照从头到尾的顺序一个字节一个字节地以数据流方式发送的。而http模块创建的HTTP服务器在接收到完整的请求头后，就会调用回调函数。在回调函数中，除了可以使用request对象访问请求头数据外，还能把request对象当作一个只读数据流来访问请求体数据。以下是一个例子。
+
+```js
+http.createServer((req, res) => {
+  var body = {}
+
+  console.log(req.method)
+  console.log(req.headers)
+
+  req.on('data', (chunk) => {
+    body.push(chunk)
+  })
+
+  req.on('end', () => {
+    body = Buffer.concat(body)
+    console.log(body.toString())
+  })
+}).listen(80)
+
+------------------------------------
+
+POST
+{ 'user-agent': 'curl/7.26.0',
+  host: 'localhost',
+  accept: '*/*',
+  'content-length': '11',
+  'content-type': 'application/x-www-form-urlencoded' }
+Hello World
+
+```
+
