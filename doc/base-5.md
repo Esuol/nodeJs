@@ -73,3 +73,31 @@ Hello World
 
 ```
 
+HTTP响应本质上也是一个数据流，同样由响应头（headers）和响应体（body）组成。例如以下是一个完整的HTTP请求数据内容。
+
+```txt
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 11
+Date: Tue, 05 Nov 2013 05:31:38 GMT
+Connection: keep-alive
+
+Hello World
+```
+
+在回调函数中，除了可以使用response对象来写入响应头数据外，还能把response对象当作一个只写数据流来写入响应体数据。例如在以下例子中，服务端原样将客户端请求的请求体数据返回给客户端。
+
+```js
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' })
+
+  req.on('data', (chunk) => {
+    res.write(chunk)
+  })
+
+  req.on('end', () => {
+    res.end()
+  })
+}).listen(80)
+```
+
