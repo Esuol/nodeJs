@@ -513,7 +513,17 @@ function readGBKText(pathname) {
     var bar = '中文';
 ```
 
+这里的诀窍在于，不管大于0xEF的单个字节在单字节编码下被解析成什么乱码字符，使用同样的单字节编码保存这些乱码字符时，背后对应的字节保持不变。
 
+NodeJS中自带了一种binary编码可以用来实现这个方法，因此在下例中，我们使用这种编码来演示上例对应的代码该怎么写。
+
+```js
+function replace(pathname) {
+  var str = fs.readFileSync(pathname, 'binary')
+  str = str.replace('foo', 'bar')
+  fs.writeFileSync(pathname, str, 'binary')
+}
+```
 
 
 
