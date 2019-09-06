@@ -341,3 +341,37 @@ http.createServer((req, res) => {
   }
 }).listen(80)
 ```
+
+接着我们看一个使用zlib模块解压HTTP响应体数据的例子。这个例子中，判断了服务端响应是否使用gzip压缩，并在压缩的情况下使用zlib模块解压响应体数据。
+
+```js
+var options = {
+  hostname: 'www.example.com',
+  port: 80,
+  path: '/',
+  method: 'GET',
+  headers: {
+    'Accept-Encoding': 'gzip, deflate'
+  }
+}
+
+http.request(options, (res) => {
+  var body = []
+
+  res.on('data', chunk => {
+    body.push(chunk)
+  })
+
+  res.on('end', chunk => {
+    body = Buffer.concat(body)
+
+    if(res.headers['content-encoding'] === 'gzip') {
+      zlib.gunzip(body, (err, data) => {
+        console.log(data.toString())
+      })
+    } else {
+      console.log(data.toString())
+    }
+  })
+})
+```
