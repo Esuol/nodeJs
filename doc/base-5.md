@@ -375,3 +375,23 @@ http.request(options, (res) => {
   })
 })
 ```
+
+## net
+
+net模块可用于创建Socket服务器或Socket客户端。由于Socket在前端领域的使用范围还不是很广，这里先不涉及到WebSocket的介绍，仅仅简单演示一下如何从Socket层面来实现HTTP请求和响应.
+
+首先我们来看一个使用Socket搭建一个很不严谨的HTTP服务器的例子。这个HTTP服务器不管收到啥请求，都固定返回相同的响应。
+
+```js
+net.createServer( conn => {
+  conn.on('data', data => {
+    conn.write([
+      'HTTP/1.1 200 OK',
+      'Content-Type: text/plain',
+      'Content-length: 11',
+      '',
+      'hello world'
+    ].join('\n'))
+  })
+}).listen(80)
+```
