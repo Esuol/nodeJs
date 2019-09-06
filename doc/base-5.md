@@ -437,4 +437,20 @@ client.on('data', (data) => {
 
 答： 发起客户端HTTP请求前需要先创建一个客户端。http模块提供了一个全局客户端http.globalAgent，可以让我们使用.request或.get方法时不用手动创建客户端。但是全局客户端默认只允许5个并发Socket连接，当某一个时刻HTTP客户端请求创建过多，超过这个数字时，就会发生socket hang up错误。解决方法也很简单，通过http.globalAgent.maxSockets属性把这个数字改大些即可。另外，https模块遇到这个问题时也一样通过https.globalAgent.maxSockets属性来处理。
 
+## 小结
+
+本章介绍了使用NodeJS操作网络时需要的API以及一些坑回避技巧，总结起来有以下几点：
+
+1. http和https模块支持服务端模式和客户端模式两种使用方式。
+
+2. request和response对象除了用于读写头数据外，都可以当作数据流来操作。
+
+3. url.parse方法加上request.url属性是处理HTTP请求时的固定搭配。
+
+4. 使用zlib模块可以减少使用HTTP协议时的数据传输量。
+
+5. 通过net模块的Socket服务器与客户端可对HTTP协议做底层操作。
+
+6. 小心踩坑.
+
 
