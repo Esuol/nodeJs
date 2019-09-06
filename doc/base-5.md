@@ -178,3 +178,14 @@ var server = https.createServer(options, (req, res) => {
 
 另外，NodeJS支持SNI技术，可以根据HTTPS客户端请求使用的域名动态使用不同的证书，因此同一个HTTPS服务器可以使用多个域名提供服务。接着上例，可以使用以下方法为HTTPS服务器添加多组证书。
 
+```js
+server.addContext('foo.com', {
+  key: fs.readFileSync('./ssl/foo.com.key'),
+  cert: fs.readFileSync('./ssl/foo.com.cert)
+})
+
+server.addContext('bar.com', {
+  key: fs.readFileSync('./ssl/bar.com.key'),
+  cert: fs.readFileSync('./ssl/bar.com.cert)
+})
+```
