@@ -101,3 +101,24 @@ http.createServer((req, res) => {
 }).listen(80)
 ```
 
+接下来我们看看客户端模式下如何工作。为了发起一个客户端HTTP请求，我们需要指定目标服务器的位置并发送请求头和请求体，以下示例演示了具体做法。
+
+```js
+var options = {
+  hostname: 'www.example.com',
+  port: 80,
+  path: '/upload',
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  }
+}
+
+var request = http.request(options, (res) => {})
+
+request.write('hello world')
+
+request.end()
+```
+
+可以看到，.request方法创建了一个客户端，并指定请求目标和请求头数据。之后，就可以把request对象当作一个只写数据流来写入请求体数据和结束请求。另外，由于HTTP请求中GET请求是最常见的一种，并且不需要请求体，因此http模块也提供了以下便捷API。
