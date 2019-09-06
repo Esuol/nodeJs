@@ -207,3 +207,18 @@ request.end()
 
 但如果目标服务器使用的SSL证书是自制的，不是从颁发机构购买的，默认情况下https模块会拒绝连接，提示说有证书安全问题。在options里加入rejectUnauthorized: false字段可以禁用对证书有效性的检查，从而允许https模块请求开发环境下使用自制证书的HTTPS服务器。
 
+## URL
+
+处理HTTP请求时url模块使用率超高，因为该模块允许解析URL、生成URL，以及拼接URL。首先我们来看看一个完整的URL的各组成部分。
+
+```txt
+                           href
+ -----------------------------------------------------------------
+                            host              path
+                      --------------- ----------------------------
+ http: // user:pass @ host.com : 8080 /p/a/t/h ?query=string #hash
+ -----    ---------   --------   ---- -------- ------------- -----
+protocol     auth     hostname   port pathname     search     hash
+                                                ------------
+                                                   query
+```
