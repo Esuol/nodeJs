@@ -68,5 +68,16 @@ try {
 }
 ```
 
+### 如何控制输入输出
+
+NodeJS程序的标准输入流（stdin）、一个标准输出流（stdout）、一个标准错误流（stderr）分别对应process.stdin、process.stdout和process.stderr，第一个是只读数据流，后边两个是只写数据流，对它们的操作按照对数据流的操作方式即可。例如，console.log可以按照以下方式实现。
+
+```js
+function log () {
+  process.stdout.write(
+    util.format.apply(util, arguments) + '\n'
+  )
+}
+```
 
 
