@@ -252,3 +252,42 @@ try {
 
 ```
 
+但是，如果我们写的是异步代码，就只有呵呵了。由于每次异步函数调用都会打断代码执行路径，只能通过回调函数来传递异常，于是我们就需要在每个回调函数里判断是否有异常发生，于是只用三次异步函数调用，就会产生下边这种代码。
+
+```js
+function main(callback) {
+    // Do something.
+    asyncA(function (err, data) {
+        if (err) {
+            callback(err);
+        } else {
+            // Do something
+            asyncB(function (err, data) {
+                if (err) {
+                    callback(err);
+                } else {
+                    // Do something
+                    asyncC(function (err, data) {
+                        if (err) {
+                            callback(err);
+                        } else {
+                            // Do something
+                            callback(null);
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+main(function (err) {
+    if (err) {
+        // Deal with exception.
+    }
+});
+
+```
+
+可以看到，回调函数已经让代码变得复杂了，而异步方式下对异常的处理更加剧了代码的复杂度。如果NodeJS的最大卖点最后变成这个样子，那就没人愿意用NodeJS了，因此接下来会介绍NodeJS提供的一些解决方案。
+
