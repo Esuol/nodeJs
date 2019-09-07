@@ -291,3 +291,24 @@ main(function (err) {
 
 可以看到，回调函数已经让代码变得复杂了，而异步方式下对异常的处理更加剧了代码的复杂度。如果NodeJS的最大卖点最后变成这个样子，那就没人愿意用NodeJS了，因此接下来会介绍NodeJS提供的一些解决方案。
 
+## 域（Domain）
+
+NodeJS提供了domain模块，可以简化异步代码的异常处理。在介绍该模块之前，我们需要首先理解“域”的概念。简单的讲，一个域就是一个JS运行环境，在一个运行环境中，如果一个异常没有被捕获，将作为一个全局异常被抛出。NodeJS通过process对象提供了捕获全局异常的方法，示例代码如下
+
+```js
+process.on('uncaughtException', err => {
+  console.log('Error: %s', err.message);
+})
+
+setTimeout(function (fn) {
+    fn();
+});
+
+-- Console ------------------------------
+Error: undefined is not a function
+```
+
+虽然全局异常有个地方可以捕获了，但是对于大多数异常，我们希望尽早捕获，并根据结果决定代码的执行路径。我们用以下HTTP服务器代码作为例子：
+
+
+
