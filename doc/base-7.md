@@ -156,3 +156,99 @@ for (; i < len; ++i) {
 })
 ```
 
+## 异常处理
+
+JS自身提供的异常捕获和处理机制——try..catch..，只能用于同步执行的代码。以下是一个例子。
+
+```js
+function sync(fn) {
+    return fn();
+}
+
+try {
+    sync(null);
+    // Do something.
+} catch (err) {
+    console.log('Error: %s', err.message);
+}
+
+-- Console ------------------------------
+Error: object is not a function
+```
+
+可以看到，异常会沿着代码执行路径一直冒泡，直到遇到第一个try语句时被捕获住。但由于异步函数会打断代码执行路径，异步函数执行过程中以及执行之后产生的异常冒泡到执行路径被打断的位置时，如果一直没有遇到try语句，就作为一个全局异常抛出。以下是一个例子。
+
+```js
+function async(fn, callback) {
+    // Code execution path breaks here.
+    setTimeout(function ()　{
+        callback(fn());
+    }, 0);
+}
+
+try {
+    async(null, function (data) {
+        // Do something.
+    });
+} catch (err) {
+    console.log('Error: %s', err.message);
+}
+
+-- Console ------------------------------
+/home/user/test.js:4
+        callback(fn());
+                 ^
+TypeError: object is not a function
+    at null._onTimeout (/home/user/test.js:4:13)
+    at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
+
+```
+
+因为代码执行路径被打断了，我们就需要在异常冒泡到断点之前用try语句把异常捕获住，并通过回调函数传递被捕获的异常。于是我们可以像下边这样改造上边的例子。
+
+```js
+function async(fn, callback) {
+    // Code execution path breaks here.
+    setTimeout(function ()　{
+        try {
+            callback(null, fn());
+        } catch (err) {
+            callback(err);
+        }
+    }, 0);
+}
+
+async(null, function (err, data) {
+    if (err) {
+        console.log('Error: %s', err.message);
+    } else {
+        // Do something.
+    }
+});
+
+-- Console ------------------------------
+Error: object is not a function
+```
+
+可以看到，异常再次被捕获住了。在NodeJS中，几乎所有异步API都按照以上方式设计，回调函数中第一个参数都是err。因此我们在编写自己的异步函数时，也可以按照这种方式来处理异常，与NodeJS的设计风格保持一致。
+
+有了异常处理方式后，我们接着可以想一想一般我们是怎么写代码的。基本上，我们的代码都是做一些事情，然后调用一个函数，然后再做一些事情，然后再调用一个函数，如此循环。如果我们写的是同步代码，只需要在代码入口点写一个try语句就能捕获所有冒泡上来的异常，示例如下。
+
+```js
+function main() {
+    // Do something.
+    syncA();
+    // Do something.
+    syncB();
+    // Do something.
+    syncC();
+}
+
+try {
+    main();
+} catch (err) {
+    // Deal with exception.
+}
+
+```
+
