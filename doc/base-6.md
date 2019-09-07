@@ -175,4 +175,27 @@ process.on('message', msg => {
 
 可以看到，父进程在创建子进程时，在options.stdio字段中通过ipc开启了一条IPC通道，之后就可以监听子进程对象的message事件接收来自子进程的消息，并通过.send方法给子进程发送消息。在子进程这边，可以在process对象上监听message事件接收来自父进程的消息，并通过.send方法向父进程发送消息。数据在传递过程中，会先在发送端使用JSON.stringify方法序列化，再在接收端使用JSON.parse方法反序列化。
 
+### 如何守护子进程
 
+守护进程一般用于监控工作进程的运行状态，在工作进程不正常退出时重启工作进程，保障工作进程不间断运行。以下是一种实现方式。
+
+```js
+// daefmon.js
+
+function spawn(mainModule) {
+  var worker = proces_child.spawn('node', [mainModule])
+
+  worker('on', code => {
+    if(code !== 0) {
+      spawn(mainModule)
+    }
+  })
+}
+
+spawn('worker.js');
+
+```
+
+递归思想
+
+可以看到，工作进程非正常退出时，守护进程立即重启工作进程。
