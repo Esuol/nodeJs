@@ -128,4 +128,51 @@ child.on('close', code => {
 
 另外，上例中虽然通过子进程对象的.stdout和.stderr访问子进程的输出，但通过options.stdio字段的不同配置，可以将子进程的输入输出重定向到任何数据流上，或者让子进程共享父进程的标准输入输出流，或者直接忽略子进程的输入输出。
 
+### 进程间如何通讯
+
+在Linux系统下，进程之间可以通过信号互相通信。以下是一个例子。
+
+```js
+/**
+ * parent.js
+*/
+var child  = process_child('node', ['child.js'])
+
+child.kill(SIGTERM)
+
+// child.js
+
+process.on('SIGTERM', () => {
+  cleanUp()
+  process.exit(0)
+})
+
+```
+
+在上例中，父进程通过.kill方法向子进程发送SIGTERM信号，子进程监听process对象的SIGTERM事件响应信号。不要被.kill方法的名称迷惑了，该方法本质上是用来给进程发送信号的，进程收到信号后具体要做啥，完全取决于信号的种类和进程自身的代码。
+
+另外，如果父子进程都是NodeJS进程，就可以通过IPC（进程间通讯）双向传递数据。以下是一个例子。
+
+```js
+// parent.js
+const child = process_child('node', ['child.js'], {
+  stdio: [0, 1, 2, 'ipc']
+})
+
+child.on('message', msg => {
+  console.log(msg)
+})
+
+child.send({hello: 'hello'})
+
+// child.js
+
+process.on('message', msg => {
+  msg.hello = msg.hello.toUpperCase()
+  process.send(msg)
+})
+```
+
+可以看到，父进程在创建子进程时，在options.stdio字段中通过ipc开启了一条IPC通道，之后就可以监听子进程对象的message事件接收来自子进程的消息，并通过.send方法给子进程发送消息。在子进程这边，可以在process对象上监听message事件接收来自父进程的消息，并通过.send方法向父进程发送消息。数据在传递过程中，会先在发送端使用JSON.stringify方法序列化，再在接收端使用JSON.parse方法反序列化。
+
 
