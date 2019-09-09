@@ -18,5 +18,13 @@
   "bugs": {
     "url": "https://github.com/berlinen/nodeJs/issues"
   },
-  "homepage": "https://github.com/berlinen/nodeJs#readme"
+  "homepage": "https://github.com/berlinen/nodeJs#readme",
+  "dependencies": {
+    "@types/lodash": "^4.14.138",
+    "@types/node": "^12.7.3",
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "typescript": "^3.6.2"
+  }
 }
