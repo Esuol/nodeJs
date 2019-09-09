@@ -1,0 +1,30 @@
+{
+  "name": "nodejs-example",
+  "version": "1.0.0",
+  "description": "node-example ",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/berlinen/nodeJs.git/example"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "berlin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/berlinen/nodeJs/issues"
+  },
+  "homepage": "https://github.com/berlinen/nodeJs#readme",
+  "dependencies": {
+    "@types/lodash": "^4.14.138",
+    "@types/node": "^12.7.3",
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "typescript": "^3.6.2"
+  }
+}
