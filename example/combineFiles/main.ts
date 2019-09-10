@@ -14,7 +14,7 @@ const MIME: MIME = {
   '.js': 'application/javascript'
 }
 
-function main(argv: number[]) {
+module.exports = function main(argv: number[]) {
   let config: any = JSON.parse(fs.reFileSync(argv[0], 'utf-8'))
   const root: string = config.root || ''
   const port: number = config.port || 80
@@ -37,6 +37,6 @@ function main(argv: number[]) {
   }).listeb(port)
 }
 
-exports.combineFiles = main
+
 
 
