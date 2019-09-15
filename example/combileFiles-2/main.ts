@@ -23,8 +23,19 @@ function main(argv: string[]):void {
   }).listen(port)
 }
 
-function validateFiles (pathnames:string, callback) {
-  
+function validateFiles (pathnames:string, writer) {
+  (function next(i: number, len: number) {
+   if(i < len) {
+    var reader: any = fs.createReadStream(pathnames[i]);
+
+    reader.pipe(writer, {end: false})
+    reader.on('end', function() {
+      next(i + 1, len);
+    });
+   } else {
+    writer.end();
+   }
+  })(0, pathnames.length)
 }
 
 function outputFiles (pathnames: string, res: any) {
