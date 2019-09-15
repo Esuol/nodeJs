@@ -17,13 +17,13 @@ function main(argv: string[]):void {
         res.writeHead(200, {
           'Content-Type': urlInfo.mime
         })
-        outputFiles(pathnames, response);
+        outputFiles(pathnames, res);
       }
     })
   }).listen(port)
 }
 
-function validateFiles (pathnames:string, writer) {
+function outputFiles (pathnames:string, writer) {
   (function next(i: number, len: number) {
    if(i < len) {
     var reader: any = fs.createReadStream(pathnames[i]);
@@ -38,8 +38,22 @@ function validateFiles (pathnames:string, writer) {
   })(0, pathnames.length)
 }
 
-function outputFiles (pathnames: string, res: any) {
-
+function validateFiles (pathnames: string, callback) {
+  (function next(i: number, len: number) {
+    if(i < len) {
+      fs.stat(pathnames[i], (err: any, stats: any) => {
+        if (err) {
+          callback(err)
+        } else if((!stats.isFile()) {
+          callback(new Error());
+        } else {
+          next(i + 1, len);
+        }
+      })
+    } else {
+      callback(null, pathnames);
+    }
+  })(0, pathnames.length)
 }
 
 
