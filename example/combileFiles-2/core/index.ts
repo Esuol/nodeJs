@@ -1,4 +1,4 @@
-function outputFiles (pathnames:string, writer) {
+exports.outputFiles = function outputFiles (pathnames:string, writer) {
   (function next(i: number, len: number) {
    if(i < len) {
     var reader: any = fs.createReadStream(pathnames[i]);
@@ -13,13 +13,13 @@ function outputFiles (pathnames:string, writer) {
   })(0, pathnames.length)
 }
 
-function validateFiles (pathnames: string, callback) {
+exports.validateFiles = function validateFiles (pathnames: string, callback) {
   (function next(i: number, len: number) {
     if(i < len) {
       fs.stat(pathnames[i], (err: any, stats: any) => {
         if (err) {
           callback(err)
-        } else if((!stats.isFile()) {
+        } else if(!stats.isFile()) {
           callback(new Error());
         } else {
           next(i + 1, len);
@@ -30,7 +30,3 @@ function validateFiles (pathnames: string, callback) {
     }
   })(0, pathnames.length)
 }
-
-exports.outputFiles
-
-exports.validateFiles
