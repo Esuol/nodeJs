@@ -271,3 +271,5 @@ function main(argv) {
 
 main(process.argv.slice(2));
 ```
+
+此外，服务器代码本身的入口函数也要做以下调整。
