@@ -174,3 +174,61 @@ main(process.argv.slice(2));
 
 根据以上设计，第二版代码按以下方式调整了部分函数。
 
+```javaScript
+function main(argv) {
+    var config = JSON.parse(fs.readFileSync(argv[0], 'utf-8')),
+        root = config.root || '.',
+        port = config.port || 80;
+
+    http.createServer(function (request, response) {
+        var urlInfo = parseURL(root, request.url);
+
+        validateFiles(urlInfo.pathnames, function (err, pathnames) {
+            if (err) {
+                response.writeHead(404);
+                response.end(err.message);
+            } else {
+                response.writeHead(200, {
+                    'Content-Type': urlInfo.mime
+                });
+                outputFiles(pathnames, response);
+            }
+        });
+    }).listen(port);
+}
+
+function outputFiles(pathnames, writer) {
+    (function next(i, len) {
+        if (i < len) {
+            var reader = fs.createReadStream(pathnames[i]);
+
+            reader.pipe(writer, { end: false });
+            reader.on('end', function() {
+                next(i + 1, len);
+            });
+        } else {
+            writer.end();
+        }
+    }(0, pathnames.length));
+}
+
+function validateFiles(pathnames, callback) {
+    (function next(i, len) {
+        if (i < len) {
+            fs.stat(pathnames[i], function (err, stats) {
+                if (err) {
+                    callback(err);
+                } else if (!stats.isFile()) {
+                    callback(new Error());
+                } else {
+                    next(i + 1, len);
+                }
+            });
+        } else {
+            callback(null, pathnames);
+        }
+    }(0, pathnames.length));
+}
+```
+
+可以看到，第二版代码在检查了请求的所有文件是否有效之后，立即就输出了响应头，并接着一边按顺序读取文件一边输出响应内容。并且，在读取文件时，第二版代码直接使用了只读数据流来简化代码。
