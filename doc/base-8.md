@@ -316,3 +316,29 @@ function main(argv) {
 ```
 
 在以上目录结构中，我们分类存放了服务控制脚本、配置文件和服务器代码
+
+### 实现
+
+按以上目录结构分别存放对应的文件之后，接下来我们看看控制脚本怎么写。首先是start.sh。
+
+```sh
+#!/bin/sh
+if [ ! -f "pid" ]
+then
+    node ../lib/daemon.js ../conf/config.json &
+    echo $! > pid
+fi
+```
+
+然后是killws.sh。
+
+```sh
+#!/bin/sh
+if [ -f "pid" ]
+then
+    kill $(tr -d '\r\n' < pid)
+    rm pid
+fi
+```
+
+于是这样我们就有了一个简单的代码部署目录和服务控制脚本，我们的服务器程序就可以上线工作了。
