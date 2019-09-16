@@ -1,3 +1,8 @@
+interface URL {
+  mime: string,
+  pathnames: string[]
+}
+
 exports.parseURL = function parseURL (root: string, url: string):URL {
   let base: string;
   let pathnames: string[];
