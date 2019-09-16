@@ -19,4 +19,6 @@ function main(argv: string[]) {
   })
 }
 
+export {}
+
 main(process.argv.slice(2))
