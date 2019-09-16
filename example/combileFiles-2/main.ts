@@ -1,5 +1,6 @@
 const fs = require('fs')
 const http = require('http')
+const parseURL = require('./core')
 const outputFiles = require('./core')
 const validateFiles = require('./core')
 

@@ -1,3 +1,22 @@
+exports.parseURL = function parseURL (root: string, url: string):URL {
+  let base: string;
+  let pathnames: string[];
+  let parts: string[];
+
+  if(url.indexOf('??') === -1) {
+    url = url.replace('/', '/??')
+  }
+
+  parts = url.split('??')
+  base = parts[0]
+  pathnames = parts[1].split(',').map(item => path.join(root, base, item))
+
+  return {
+    mime: MIME[path.extname(pathnames[0])] || 'text/plain',
+    pathnames
+  }
+}
+
 exports.outputFiles = function outputFiles (pathnames:string, writer) {
   (function next(i: number, len: number) {
    if(i < len) {
