@@ -137,3 +137,39 @@ eventproxy 提供了不少其他场景所需的 API，但最最常用的用法�
 eventproxy 这套处理异步并发的思路，我一直觉得就像是汇编里面的 goto 语句一样，程序逻辑在代码中随处跳跃。本来代码已经执行到 100 行了，突然 80 行的那个回调函数又开始工作了。如果你异步逻辑复杂点的话，80 行的这个函数完成之后，又激活了 60 行的另外一个函数。并发和嵌套的问题虽然解决了，但老祖宗们消灭了几十年的 goto 语句又回来了。
 
 之前我们已经得到了一个长度为 40 的 topicUrls 数组，里面包含了每条主题的链接。那么意味着，我们接下来要发出 40 个并发请求。我们需要用到 eventproxy 的 #after API。
+
+```js
+// 得到 topicUrls 之后
+
+// 得到一个 eventproxy 的实例
+var ep = new eventproxy();
+
+// 命令 ep 重复监听 topicUrls.length 次（在这里也就是 40 次） `topic_html` 事件再行动
+ep.after('topic_html', topicUrls.length, function (topics) {
+  // topics 是个数组，包含了 40 次 ep.emit('topic_html', pair) 中的那 40 个 pair
+
+  // 开始行动
+  topics = topics.map(function (topicPair) {
+    // 接下来都是 jquery 的用法了
+    var topicUrl = topicPair[0];
+    var topicHtml = topicPair[1];
+    var $ = cheerio.load(topicHtml);
+    return ({
+      title: $('.topic_full_title').text().trim(),
+      href: topicUrl,
+      comment1: $('.reply_content').eq(0).text().trim(),
+    });
+  });
+
+  console.log('final:');
+  console.log(topics);
+});
+
+topicUrls.forEach(function (topicUrl) {
+  superagent.get(topicUrl)
+    .end(function (err, res) {
+      console.log('fetch ' + topicUrl + ' successful');
+      ep.emit('topic_html', [topicUrl, res.text]);
+    });
+});
+```
