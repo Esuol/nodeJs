@@ -39,3 +39,27 @@ superagent.get(cnodeUrl)
     console.log(topicUrls);
   });
 ```
+
+用 js 写过异步的同学应该都知道，如果你要并发异步获取两三个地址的数据，并且要在获取到数据之后，对这些数据一起进行利用的话，常规的写法是自己维护一个计数器。
+
+先定义一个 var count = 0，然后每次抓取成功以后，就 count++。如果你是要抓取三个源的数据，由于你根本不知道这些异步操作到底谁先完成，那么每次当抓取成功的时候，就判断一下 count === 3。当值为真时，使用另一个函数继续完成操作。
+
+而 eventproxy 就起到了这个计数器的作用，它来帮你管理到底这些异步操作是否完成，完成之后，它会自动调用你提供的处理函数，并将抓取到的数据当参数传过来。
+
+假设我们不使用 eventproxy 也不使用计数器时，抓取三个源的写法是这样的：
+
+```js
+// 参考 jquery 的 $.get 的方法
+$.get("http://data1_source", function (data1) {
+  // something
+  $.get("http://data2_source", function (data2) {
+    // something
+    $.get("http://data3_source", function (data3) {
+      // something
+      var html = fuck(data1, data2, data3);
+      render(html);
+    });
+  });
+});
+```
+
