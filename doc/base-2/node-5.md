@@ -63,3 +63,40 @@ $.get("http://data1_source", function (data1) {
 });
 ```
 
+先获取 data1，获取完成之后获取 data2，然后再获取 data3，然后 fuck 它们，进行输出。
+
+但大家应该也想到了，其实这三个源的数据，是可以并行去获取的，data2 的获取并不依赖 data1 的完成，data3 同理也不依赖 data2。
+
+计数器来写，会写成这样：
+
+```js
+(function () {
+  var count = 0;
+  var result = {};
+
+  $.get('http://data1_source', function (data) {
+    result.data1 = data;
+    count++;
+    handle();
+    });
+  $.get('http://data2_source', function (data) {
+    result.data2 = data;
+    count++;
+    handle();
+    });
+  $.get('http://data3_source', function (data) {
+    result.data3 = data;
+    count++;
+    handle();
+    });
+
+  function handle() {
+    if (count === 3) {
+      var html = fuck(result.data1, result.data2, result.data3);
+      render(html);
+    }
+  }
+})();
+```
+
+如果我们用 eventproxy，写出来是这样的：
