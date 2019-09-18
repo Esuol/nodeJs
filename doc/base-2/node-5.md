@@ -126,3 +126,14 @@ ep.all('data1_event', 'data2_event', 'data3_event', function (data1, data2, data
 
 当三个事件未同时完成时，ep.emit() 调用之后不会做任何事；当三个事件都完成的时候，就会调用末尾的那个回调函数，来对它们进行统一处理。
 
+eventproxy 提供了不少其他场景所需的 API，但最最常用的用法就是以上的这种，即：
+
+1. 先 var ep = new eventproxy(); 得到一个 eventproxy 实例。
+
+2. 告诉它你要监听哪些事件，并给它一个回调函数。ep.all('event1', 'event2', function (result1, result2) {})。
+
+3. 在适当的时候 ep.emit('event_name', eventData)。
+
+eventproxy 这套处理异步并发的思路，我一直觉得就像是汇编里面的 goto 语句一样，程序逻辑在代码中随处跳跃。本来代码已经执行到 100 行了，突然 80 行的那个回调函数又开始工作了。如果你异步逻辑复杂点的话，80 行的这个函数完成之后，又激活了 60 行的另外一个函数。并发和嵌套的问题虽然解决了，但老祖宗们消灭了几十年的 goto 语句又回来了。
+
+之前我们已经得到了一个长度为 40 的 topicUrls 数组，里面包含了每条主题的链接。那么意味着，我们接下来要发出 40 个并发请求。我们需要用到 eventproxy 的 #after API。
