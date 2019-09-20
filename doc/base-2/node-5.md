@@ -149,6 +149,7 @@ ep.after('topic_html', topicUrls.length, function (topics) {
   // topics 是个数组，包含了 40 次 ep.emit('topic_html', pair) 中的那 40 个 pair
 
   // 开始行动
+  
   topics = topics.map(function (topicPair) {
     // 接下来都是 jquery 的用法了
     var topicUrl = topicPair[0];
@@ -164,6 +165,7 @@ ep.after('topic_html', topicUrls.length, function (topics) {
   console.log('final:');
   console.log(topics);
 });
+
 
 topicUrls.forEach(function (topicUrl) {
   superagent.get(topicUrl)
