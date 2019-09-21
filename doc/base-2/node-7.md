@@ -57,4 +57,16 @@ describe('test/main.test.js', function () {
 
  与 非-g 的区别，就是安装位置的区别，g 是 global 的意思。如果不加的话，则安装 mocha 在你的项目目录下面；如果加了，则这个 mocha 是安装在全局的，如果 mocha 有可执行命令的话，那么这个命令也会自动加入到你系统 $PATH 中的某个地方（在我的系统中，是这里 /Users/alsotang/.nvm/v0.10.29/bin）
 
- 
+$ mocha
+
+那么，代码中的 describe 和 it 是什么意思呢？其实就是 BDD 中的那些意思，把它们当做语法来记就好了。
+
+大家来看看 nodeclub 中，关于 topicController 的测试文件：
+
+describe 中的字符串，用来描述你要测的主体是什么；it 当中，描述具体的 case 内容。
+
+而引入的那个 should 模块，是个断言库。玩过 ruby 的同学应该知道 rspec，rspec 它把测试框架和断言库的事情一起做了，而在 Node.js 中，这两样东西的作用分别是 mocha 和 should 在协作完成。
+
+should 在 js 的 Object “基类”上注入了一个 #should 属性，这个属性中，又有着许许多多的属性可以被访问
+
+比如测试一个数是不是大于3，则是 (5).should.above(3)；测试一个字符串是否有着特定前缀：'foobar'.should.startWith('foo');。
