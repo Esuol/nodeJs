@@ -68,3 +68,5 @@ async.mapLimit(urls, 5, function (url, callback) {
   console.log(result);
 });
 ```
+
+可以看到，一开始，并发链接数是从 1 开始增长的，增长到 5 时，就不再增加。当其中有任务完成时，再继续抓取。并发连接数始终控制在 5 个。
