@@ -48,3 +48,23 @@ var fetchUrl = function (url, callback) {
   }, delay);
 };
 ```
+
+我们接着来伪造一组链接
+
+```js
+var urls = [];
+for(var i = 0; i < 30; i++) {
+  urls.push('http://datasource_' + i);
+}
+```
+
+接着，我们使用 async.mapLimit 来并发抓取，并获取结果。
+
+```js
+async.mapLimit(urls, 5, function (url, callback) {
+  fetchUrl(url, callback);
+}, function (err, result) {
+  console.log('final:');
+  console.log(result);
+});
+```
