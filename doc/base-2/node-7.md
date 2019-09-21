@@ -34,3 +34,27 @@ if (require.main === module) {
   console.log('fibonacci(' + n + ') is', fibonacci(n));
 }
 ```
+
+先得把 main.js 里面的 fibonacci 暴露出来，这个简单。加一句
+
+exports.fibonacci = fibonacci;（要是看不懂这句就去补补 Node.js 的基础知识吧）
+
+然后我们在 test/main.test.js 中引用我们的 main.js，并开始一个简单的测试。
+
+```js
+// file: test/main.test.js
+var main = require('../main');
+var should = require('should');
+
+describe('test/main.test.js', function () {
+  it('should equal 55 when n === 10', function () {
+    main.fibonacci(10).should.equal(55);
+  });
+});
+```
+
+装个全局的 mocha: $ npm install mocha -g。
+
+ 与 非-g 的区别，就是安装位置的区别，g 是 global 的意思。如果不加的话，则安装 mocha 在你的项目目录下面；如果加了，则这个 mocha 是安装在全局的，如果 mocha 有可执行命令的话，那么这个命令也会自动加入到你系统 $PATH 中的某个地方（在我的系统中，是这里 /Users/alsotang/.nvm/v0.10.29/bin）
+
+ 
