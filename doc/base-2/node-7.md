@@ -119,3 +119,61 @@ describe('test/main.test.js', function () {
   });
 });
 ```
+
+我们这时候跑一下 $ mocha，会发现后三个 case 都没过。
+
+于是我们更新 fibonacci 的实现：
+
+```js
+var fibonacci = function (n) {
+  if (typeof n !== 'number') {
+    throw new Error('n should be a Number');
+  }
+  if (n < 0) {
+    throw new Error('n should >= 0');
+  }
+  if (n > 10) {
+    throw new Error('n should <= 10');
+  }
+  if (n === 0) {
+    return 0;
+  }
+  if (n === 1) {
+    return 1;
+  }
+
+  return fibonacci(n-1) + fibonacci(n-2);
+};
+```
+
+再跑一次 $ mocha，就过了。这就是传说中的测试驱动开发：先把要达到的目的都描述清楚，然后让现有的程序跑不过 case，再修补程序，让 case 通过。
+
+安装一个 istanbul : $ npm i istanbul -g
+
+执行 $ istanbul cover _mocha
+
+mocha 和 istanbul 的结合是相当无缝的，只要 mocha 跑得动，那么 istanbul 就接得进来。
+
+假设你有一个项目A，用到了 mocha 的 version 3，其他人有个项目B，用到了 mocha 的 version 10，那么如果你 npm i mocha -g 装的是 version 3 的话，你用 $ mocha 是不兼容B项目的。因为 mocha 版本改变之后，很可能语法也变了，对吧。
+
+这时，跑测试用例的正确方法，应该是
+
+1. $ npm i mocha --save-dev，装个 mocha 到项目目录中去
+
+2. $ ./node_modules/.bin/mocha，用刚才安装的这个特定版本的 mocha，来跑项目的测试代码。
+
+./node_modules/.bin 这个目录下放着我们所有依赖自带的那些可执行文件。
+
+每次输入这个很麻烦对吧？所以我们要引入 Makefile，让 Makefile 帮我们记住复杂的配置。
+
+```bash
+test:
+  ./node_modules/.bin/mocha
+
+cov test-cov:
+  ./node_modules/.bin/istanbul cover _mocha
+
+.PHONY: test cov test-cov
+```
+
+这时，我们只需要调用 make test 或者 make cov，就可以跑我们相应的测试了。
