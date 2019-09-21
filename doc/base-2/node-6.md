@@ -20,3 +20,14 @@
   }
 ]
 ```
+
+当你需要去多个源(一般是小于 10 个)汇总数据的时候，用 eventproxy 方便；当你需要用到队列，需要控制并发数，或者你喜欢函数式编程思维时，使用 async。大部分场景是前者，所以我个人大部分时间是用 eventproxy 的。
+
+首先，我们伪造一个 fetchUrl(url, callback) 函数，这个函数的作用就是，当你通过调用它时，它会返回 http://www.baidu.com 的页面内容回来。
+
+```js
+fetchUrl('http://www.baidu.com', function (err, content) {
+  // do something with `content`
+});
+```
+
