@@ -58,3 +58,28 @@ function foo() {
 }
 foo();
 ```
+
+## 闭包
+
+闭包这个概念，在函数式编程里很常见，简单的说，就是使内部函数可以访问定义在外部函数中的变量。
+
+假如我们要实现一系列的函数：add10，add20，它们的定义是 int add10(int n)。
+
+为此我们构造了一个名为 adder 的构造器，如下：
+
+```js
+var adder = function (x) {
+  var base = x;
+  return function (n) {
+    return n + base;
+  };
+};
+
+var add10 = adder(10);
+console.log(add10(5));
+
+var add20 = adder(20);
+console.log(add20(5));
+```
+
+每次调用 adder 时，adder 都会返回一个函数给我们。我们传给 adder 的值，会保存在一个名为 base 的变量中。由于返回的函数在其中引用了 base 的值，于是 base 的引用计数被 +1。当返回函数不被垃圾回收时，则 base 也会一直存在。
