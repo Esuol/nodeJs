@@ -13,3 +13,19 @@ travis 默认带有的那些依赖，都是每个用户的机器上都会有的�
 我们来讲讲接入 travis 的步骤。
 
 travis 的价格是免费的，对于 github 上的开源项目来说。它默认当然不可能帮 github 的每个用户都跑测试，所以你需要去注册一下 travis，然后告诉它你需要开启集成测试的仓库。
+
+当你在 travis 授权了仓库之后，每当你 push 代码到 github，travis 都会自动帮你跑测试。
+
+travis 通过授权，可以知道你的项目在什么地方，于是它就可以把项目 clone 过去。但问题又来了，它不懂你的测试怎么跑啊。用 npm test 还是 make test 还是 jake test 呢？
+
+所以我们需要给出一些配置信息，配置信息以 .travis.yml 文件的形式放在项目根目录，比如一个简单的 .travis.yml。
+
+```yml
+language: node_js
+node_js:
+ - '0.8'
+ - '0.10'
+ - '0.11'
+
+script: make test
+```
