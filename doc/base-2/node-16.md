@@ -158,3 +158,52 @@ app.get('/', function (req, res) {
 });
 ```
 
+## 各种存储的利弊
+
+上面我们说到，session 的 store 有四个常用选项：1）内存 2）cookie 3）缓存 4）数据库
+
+其中，开发环境存内存就好了。一般的小程序为了省事，如果不涉及状态共享的问题，用内存 session 也没问题。但内存 session 除了省事之外，没有别的好处。
+
+cookie session 我们下面会提到，现在说说利弊。用 cookie session 的话，是不用担心状态共享问题的，因为 session 的 data 不是由服务器来保存，而是保存在用户浏览器端，每次用户访问时，都会主动带上他自己的信息。当然在这里，安全性之类的，只要遵照最佳实践来，也是有保证的。它的弊端是增大了数据量传输，利端是方便。
+
+缓存方式是最常用的方式了，即快，又能共享状态。相比 cookie session 来说，当 session data 比较大的时候，可以节省网络传输。推荐使用。
+
+数据库 session。除非你很熟悉这一块，知道自己要什么，否则还是老老实实用缓存吧。
+
+## signedCookie
+
+```txt
+cookie 虽然很方便，但是使用 cookie 有一个很大的弊端，cookie 中的所有数据在客户端就可以被修改，数据非常容易被伪造
+```
+
+其实不是这样的，那只是为了方便理解才那么写。要知道，计算机领域有个名词叫 签名，专业点说，叫 信息摘要算法。
+
+比如我们现在面临着一个菜鸟开发的网站，他用 cookie 来记录登陆的用户凭证。相应的 cookie 长这样：dotcom_user=alsotang，它说明现在的用户是 alsotang 这个用户。如果我在浏览器中装个插件，把它改成 dotcom_user=ricardo，服务器一读取，就会误认为我是 ricardo。然后我就可以进行 ricardo 才能进行的操作了。之前 web 开发不成熟的时候，用这招甚至可以黑个网站下来，把 cookie 改成 dotcom_user=admin 就行了，唉，那是个玩黑客的黄金年代啊。
+
+OK，现在我有一些数据，不想存在 session 中，想存在 cookie 中，怎么保证不被篡改呢？答案很简单，签个名。
+
+
+假设我的服务器有个秘密字符串，是 this_is_my_secret_and_fuck_you_all，我为用户 cookie 的 dotcom_user 字段设置了个值 alsotang。cookie 本应是
+
+```json
+{dotcom_user: 'alsotang'}
+```
+
+而如果我们签个名，比如把 dotcom_user 的值跟我的 secret_string 做个 sha1
+
+```js
+sha1('this_is_my_secret_and_fuck_you_all' + 'alsotang') === '4850a42e3bc0d39c978770392cbd8dc2923e3d1d'
+```
+
+然后把 cookie 变成这样
+
+```json
+{
+  dotcom_user: 'alsotang',
+  'dotcom_user.sig': '4850a42e3bc0d39c978770392cbd8dc2923e3d1d',
+}
+```
+
+这样一来，用户就没法伪造信息了。一旦它更改了 cookie 中的信息，则服务器会发现 hash 校验的不一致。
+
+毕竟他不懂我们的 secret_string 是什么，而暴力破解哈希值的成本太高。
