@@ -21,6 +21,7 @@
   },
   "include": [
     "index.ts",
-    "core"
+    "core",
+    "core/**/*"
   ],
 }
