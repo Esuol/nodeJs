@@ -1,7 +1,7 @@
 const amqp = require('amqplib');
 
 // 生产者
-const product: (params: any) => void = async (params: any) => {
+const product: (params?: any) => void = async (params: any) => {
   // 1 创建链接对象
   const connect = await amqp.connect('amqp://localhost:5672')
   // 1 创建链接对象
@@ -25,3 +25,5 @@ const product: (params: any) => void = async (params: any) => {
   await connect.close()
 
 }
+
+product();
