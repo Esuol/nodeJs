@@ -1,0 +1,28 @@
+{
+  "name": "message-queque",
+  "version": "1.0.0",
+  "description": "message queque",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "runmain": "./node_modules/.bin/tsc && node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/berlinen/nodeJs.git/example/messageQueque"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "berlin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/berlinen/nodeJs/issues"
+  },
+  "homepage": "https://github.com/berlinen/nodeJs#readme",
+  "dependencies": {
+    "@types/node": "^12.12.14",
+    "amqplib": "^0.5.5",
+    "typescript": "^3.6.2"
+  }
+}
