@@ -21,7 +21,8 @@
   "homepage": "https://github.com/berlinen/nodeJs#readme",
   "dependencies": {
     "@types/lodash": "^4.14.138",
-    "@types/node": "^12.7.3",
+    "@types/node": "^12.12.14",
+    "amqplib": "^0.5.5",
     "lodash": "^4.17.15"
   },
   "devDependencies": {
