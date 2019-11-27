@@ -26,4 +26,4 @@ const product: (params?: any) => void = async (params: any) => {
 
 }
 
-product();
+module.exports = product

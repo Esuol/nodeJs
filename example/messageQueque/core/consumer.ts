@@ -20,4 +20,4 @@ const consumer: () => void =  async () => {
     });
 }
 
-consumer()
+module.exports = consumer
