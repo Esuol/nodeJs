@@ -1,8 +1,9 @@
 // 构建消费者
+const amqpConsumer = require('amqplib');
 
 const consumer: () => void =  async () => {
     // 1. 创建链接对象
-    const connection = await amqp.connect('amqp://localhost:5672');
+    const connection = await amqpConsumer.connect('amqp://localhost:5672');
 
     // 2. 获取通道
     const channel = await connection.createChannel();
@@ -19,5 +20,7 @@ const consumer: () => void =  async () => {
         channel.ack(msg);
     });
 }
+
+consumer()
 
 module.exports = consumer
