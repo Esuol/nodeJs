@@ -12,7 +12,7 @@ const product: (params?: any) => void = async (params: any) => {
 
   // 3 声明参数
   const routingKey = 'helloKoalaQueue'
-  const msg = 'hello koala'
+  const msg = 'hello berlin'
 
   for (let i=0; i<10000; i++) {
     // 4. 发送消息
@@ -26,6 +26,6 @@ const product: (params?: any) => void = async (params: any) => {
 
 }
 
-product()
+// product()
 
 module.exports = product

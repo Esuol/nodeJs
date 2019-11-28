@@ -1,4 +1,9 @@
 const productFunc = require('./core/product')
 const consumerFunc = require('./core/consumer')
 
-productFunc();
+async function run () {
+  await productFunc()
+  consumerFunc()
+}
+
+run()

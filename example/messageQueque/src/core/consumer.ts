@@ -21,6 +21,6 @@ const consumer: () => void =  async () => {
     });
 }
 
-consumer()
+// consumer()
 
 module.exports = consumer
