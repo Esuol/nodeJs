@@ -9,7 +9,7 @@ const server = http.createServer((req: any, res: any) => {
         // 当一个子进程使用 process.send() 发送消息时会触发 'message' 事件
         compute.on('message', (sum: any) => {
             res.end(`Sum is ${sum}`);
-            compute.kill();
+            compute.kill(); // 关闭子进程
         });
 
         // 子进程监听到一些错误消息退出

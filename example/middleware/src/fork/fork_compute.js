@@ -10,6 +10,7 @@ var computation = function () {
     console.timeEnd('计算耗时');
     return sum;
 };
+
 process.on('message', function (msg) {
     console.log(msg, 'process.pid', process.pid); // 子进程id
     var sum = computation();
