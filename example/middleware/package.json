@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node-dev ./src/index.ts",
-    "start:fork": "tsc ./src/fork/fork_compute.ts && ts-node-dev ./src/fork/fork_app.ts"
+    "start:fork": "tsc ./src/fork/fork_compute.ts && ts-node-dev ./src/fork/fork_app.ts",
+    "start:cluster": "ts-node-dev ./src/fork/cluster.ts"
   },
   "repository": {
     "type": "git",
