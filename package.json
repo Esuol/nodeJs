@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/berlinen/nodeJs/issues"
   },
-  "homepage": "https://github.com/berlinen/nodeJs#readme"
+  "homepage": "https://github.com/berlinen/nodeJs#readme",
+  "dependencies": {
+    "pm2": "^4.2.0"
+  }
 }

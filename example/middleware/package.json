@@ -8,7 +8,7 @@
     "start": "ts-node-dev ./src/index.ts",
     "start:fork": "tsc ./src/fork/fork_compute.ts && ts-node-dev ./src/fork/fork_app.ts",
     "start:cluster": "ts-node-dev ./src/fork/cluster.ts",
-    "start:cluster-example": "node ./src/worker/master.js"
+    "start:cluster-example": "pm2 start ./src/worker/master.js --name clusterExample && pm2 logs master && pm2 logs clusterExample"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.1",
+    "pm2": "^4.2.0",
     "ts-node": "^8.5.2",
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "^3.6.2"
