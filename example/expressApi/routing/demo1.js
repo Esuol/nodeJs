@@ -164,3 +164,67 @@ app.get('/example/d', [cb0, cb1], function (req, res, next) {
 
 // 下表中响应对象(res)上的方法可以向客户机发送响应，并终止请求-响应周期。如果这些方法都没有从路由处理程序调用，客户端请求将保持挂起状态。
 
+/**
+ * res.downLoad() 提示要下载的文件。
+ * res.end() 结束响应过程。
+ * res.json() 发送一个JSON响应。
+ * res.jsonp() 发送带有JSONP支持的JSON响应。
+ * res.redirect() 重定向请求。
+ * res.render() Render a view template.
+ * res.send() 发送各种类型的响应。
+ * res.sendFile() 以八字节流的形式发送文件。
+ * res.sendStatus() 设置响应状态代码，并将其字符串表示形式发送为响应正文。
+*/
+
+/**
+ * app.route
+ */
+ app.route('book')
+  .get(function (req, res) {
+    res.send('Get a random book')
+  })
+  .post(function (req, res) {
+    res.send('Add a book')
+  })
+  .put(function (req, res) {
+    res.send('Update the book')
+  })
+
+/**
+ * express.Router
+ *
+ * 使用express类来创建模块化的、可挂载的路由处理程序。路由器实例是一个完整的中间件和路由系统;因此，它通常被称为迷你应用程序。
+ * 下面的例子创建了一个路由器模块，在其中加载了一个中间件函数，定义了一些路由，并将路由器模块安装在主应用程序的路径上。
+ * 在app目录中创建一个名为birds.js的路由器文件，包含以下内容
+ *
+ */
+
+// birds.js
+var express = require('express')
+var router = express.Router()
+
+// middleware that is specific to this router
+router.use(function timeLog (req, res, next) {
+  console.log('Time: ', Date.now())
+  next()
+})
+// define the home page route
+router.get('/', function (req, res) {
+  res.send('Birds home page')
+})
+// define the about route
+router.get('/about', function (req, res) {
+  res.send('About birds')
+})
+
+module.exports = router
+
+// Then, load the router module in the app:
+
+var birds = require('./birds')
+
+// ...
+
+app.use('/birds', birds)
+
+
