@@ -1,5 +1,7 @@
 ## request
 
+## properties
+
 ### req.app
 
 此属性保存对使用中间件的Express应用程序实例的引用。
@@ -183,3 +185,205 @@ console.dir(req.query.color)
 // => ['blue', 'black', 'red']s
 ```
 
+### req.route
+
+包含当前匹配的路由，一个字符串。例如
+
+```js
+app.get('/user/:id?', function userIdHandler (req, res) {
+  console.log(req.route)
+  res.send('GET')
+})
+
+//  { path: '/user/:id?',
+//   stack:
+//    [ { handle: [Function: userIdHandler],
+//        name: 'userIdHandler',
+//        params: undefined,
+//        path: undefined,
+//        keys: [],
+//        regexp: /^\/?$/i,
+//        method: 'get' } ],
+//   methods: { get: true } }
+```
+
+### req.secure
+
+```js
+console.dir(req.protocol === 'https')
+```
+
+### req.signedCookies
+
+使用cookie解析器中间件时，此属性包含请求发送的已签名的cookie，未签名且可以使用。 已签名的cookie位于另一个对象中，以显示开发人员的意图。 否则，可能会对req.cookie值（很容易欺骗）进行恶意攻击。 请注意，对cookie进行签名不会使其“隐藏”或加密。 但只是防止篡改（因为用于签名的秘密是私有的）。
+
+如果没有发送签名的cookie，则属性默认为{}。
+
+```js
+// Cookie: user=tobi.CP7AWaXDfAKIRfH49dQzKJx7sKzzSoPq7/AcBBRVwlI3
+console.dir(req.signedCookies.user)
+// => 'tobi'
+```
+
+### req.stale
+
+指示请求是否过时，是否与req.fresh相反。
+
+```js
+console.dir(req.stale)
+// => true
+```
+
+### req.subdomains
+
+请求域名中的子域数组。
+
+```js
+// Host: "tobi.ferrets.example.com"
+console.dir(req.subdomains)
+// => ['ferrets', 'tobi']
+```
+
+### req.xhr
+
+如果请求的X-Requested-With头字段是XMLHttpRequest，则该属性为真，表示请求是由客户机库(如jQuery)发出的。
+
+```js
+console.dir(req.xhr)
+// => true
+```
+
+## methods
+
+### req.accepts(types)
+
+根据请求的Accept HTTP头字段检查指定的内容类型是否可接受。该方法返回最佳匹配，或者如果指定的内容类型都不可接受，则返回false(在这种情况下，应用程序应以406“不可接受”响应)。
+
+类型值可以是单个MIME类型字符串(如“application/json”)、扩展名(如“json”)、逗号分隔的列表或数组。对于列表或数组，该方法返回最佳匹配(如果有的话)。
+
+```js
+// Accept: text/html
+req.accepts('html')
+// => "html"
+
+// Accept: text/*, application/json
+req.accepts('html')
+// => "html"
+req.accepts('text/html')
+// => "text/html"
+req.accepts(['json', 'text'])
+// => "json"
+req.accepts('application/json')
+// => "application/json"
+
+// Accept: text/*, application/json
+req.accepts('image/png')
+req.accepts('png')
+// => undefined
+
+// Accept: text/*;q=.5, application/json
+req.accepts(['html', 'json'])
+// => "json"
+```
+
+### req.acceptsCharsets(charset [, ...])
+
+基于请求s Accept-Charset HTTP头字段返回指定字符集的第一个可接受的字符集。如果不接受指定的字符集，则返回false。
+
+### req.acceptsEncodings(encoding [, ...])
+
+根据请求的Accept-Encoding HTTP标头字段，返回指定编码中的第一个接受的编码。 如果不接受任何指定的编码，则返回false。
+
+### req.acceptsLanguages(lang [, ...])
+
+基于请求s接受语言HTTP头字段返回指定语言的第一种可接受语言。如果不接受指定的语言，则返回false。
+
+### req.get(field)
+
+返回指定的HTTP请求头字段(大小写不敏感的匹配)。引用和引用字段是可互换的。
+
+```js
+req.get('Content-Type')
+// => "text/plain"
+
+req.get('content-type')
+// => "text/plain"
+
+req.get('Something')
+// => undefined
+```
+
+### req.is(type)
+
+如果传入请求的内容类型HTTP头字段与类型参数指定的MIME类型匹配，则返回匹配的内容类型。如果请求没有正文，则返回null。否则返回false。
+
+```js
+// With Content-Type: text/html; charset=utf-8
+req.is('html')
+// => 'html'
+req.is('text/html')
+// => 'text/html'
+req.is('text/*')
+// => 'text/*'
+
+// When Content-Type is application/json
+req.is('json')
+// => 'json'
+req.is('application/json')
+// => 'application/json'
+req.is('application/*')
+// => 'application/*'
+
+req.is('html')
+// => false
+```
+
+### req.param(name [, defaultValue])
+
+弃用。使用要求。参数要求。身体或要求。查询,如适用。
+
+```js
+// ?name=tobi
+req.param('name')
+// => "tobi"
+
+// POST name=tobi
+req.param('name')
+// => "tobi"
+
+// /user/tobi for /user/:name
+req.param('name')
+// => "tobi"
+```
+查找按以下顺序执行
+
+req.params
+
+req.body
+
+req.query
+
+### req.range(size[, options])
+
+size参数是资源的最大大小。
+
+options参数是一个可以具有以下属性的对象。
+
+将返回范围数组或负数，指示错误解析。
+
+-2表示格式错误的标题字符串
+
+-1表示范围无法满足
+
+```js
+// parse header from request
+var range = req.range(1000)
+
+// the type of the range
+if (range.type === 'bytes') {
+  // the ranges
+  range.forEach(function (r) {
+    // do something with r.start and r.end
+  })
+}
+```
