@@ -320,13 +320,13 @@ var openRouter = express.Router()
 authRouter.use(require('./authenticate').basic(usersdb))
 
 authRouter.get('/:user_id/edit', function (req, res, next) {
-  // ... Edit user UI ...
+  // ... Edit user UI
 })
 openRouter.get('/', function (req, res, next) {
-  // ... List users ...
+  // ... List users
 })
 openRouter.get('/:user_id', function (req, res, next) {
-  // ... View user ...
+  // ... View user
 })
 
 app.use('/users', authRouter)
