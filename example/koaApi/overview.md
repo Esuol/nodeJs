@@ -372,3 +372,361 @@ ctx.lastModified=
 ctx.etag=
 ```
 
+### Request
+
+Koa请求对象是node的普通请求对象之上的一个抽象，它提供了额外的功能，这对每天的HTTP服务器开发都很有用。
+
+#### request.header
+
+请求头对象。
+
+#### request.header=
+
+设置请求头对象
+
+#### request.headers
+
+请求头对象。request.header别名。
+
+#### request.headers=
+
+设置请求头对象 别名request.header =
+
+#### request.method
+
+Request method.
+
+#### request.method=
+
+设置请求方法，用于实现诸如methodOverride()之类的中间件。
+
+#### request.length
+
+返回请求内容长度，在出现或未定义时作为数字。
+
+#### request.url
+
+Get request URL.
+
+#### request.url=
+
+设置请求URL，用于URL重写。
+
+#### request.originalUrl
+
+Get request original URL.
+
+#### request.origin
+
+获取URL的来源，包括协议和主机。
+
+```js
+ctx.request.origin
+// => http://example.com
+```
+
+#### request.href
+
+获取完整的请求URL，包括协议，主机和URL。
+
+```js
+ctx.request.href;
+// => http://example.com/foo/bar?q=1
+```
+
+#### request.path
+
+Get request pathname.
+
+#### request.path=
+
+设置请求路径名，并保留查询字符串。
+
+#### request.querystring
+
+获取原始查询字符串void ?
+
+#### request.querystring=
+
+设置原始查询字符串。
+
+####  request.search
+
+Get raw query string with the ?.
+
+#### request.search=
+
+Set raw query string.
+
+#### request.host
+
+获得主机(主机名:端口)。当app.proxy为真时，支持x - forwarding主机，否则使用主机。
+
+#### request.hostname
+
+出现时获取主机名。当app.proxy为真时，支持x - forwarding主机，否则使用主机。
+
+如果主机是IPv6, Koa将解析委托给WHATWG URL API，注意这可能会影响性能。
+
+#### request.URL
+
+Get WHATWG parsed URL object. 获取WHATWG解析的URL对象。
+
+#### request.type
+
+获取请求内容类型的void参数，如“charset”。
+
+```js
+const ct = ctx.request.type;
+// => "image/png"
+```
+
+#### request.charset
+
+获取当前或未定义的请求字符集
+
+```js
+ctx.request.charset;
+// => "utf-8"
+```
+
+#### request.query
+
+获取已解析的查询字符串，如果不存在查询字符串，则返回一个空对象。 请注意，此getter不支持嵌套解析。
+
+例如“ color = blue＆size = small”：
+
+```js
+{
+  color: 'blue',
+  size: 'small'
+}
+```
+
+#### request.query=
+
+将查询字符串设置为给定对象。请注意，此setter不支持嵌套对象。
+
+```js
+ctx.query = { next: '/login' };
+```
+
+#### request.fresh
+
+检查请求缓存是否为fresh，即内容没有更改。 此方法用于If-None-Match / ETag与If-Modified-Since和Last-Modified之间的缓存协商。 在设置一个或多个这些响应头之后，应该引用它。
+
+```js
+// freshness check requires status 20x or 304
+ctx.status = 200;
+ctx.set('ETag', '123');
+
+// cache is ok
+if (ctx.fresh) {
+  ctx.status = 304;
+  return;
+}
+
+// cache is stale
+// fetch new data
+ctx.body = await db.find('something');
+```
+
+#### request.stale
+
+Inverse of request.fresh.
+
+#### request.protocol
+
+返回请求协议，“https”或“http”。当app.proxy为真时，支持x - forwarding -原型。
+
+#### request.secure
+
+对ctx速记。检查请求是否通过TLS发出。
+
+#### request.ip
+
+请求远程地址。当app.proxy为真时，支持x - forwarding。
+
+#### request.ips
+
+当x - forward - for出现并启用app.proxy时，将返回这些ip的一个数组，从上游到下游排序。当禁用时，将返回一个空数组。
+
+#### request.subdomains
+
+以数组形式返回子域。
+
+子域是主机在应用程序主域之前的点分隔部分。 默认情况下，应用程序的域假定为主机的最后两个部分。 可以通过设置app.subdomainOffset来更改。
+
+例如，如果域为“ tobi.ferrets.example.com”：如果未设置app.subdomainOffset，则ctx.subdomains为[“ ferrets”，“ tobi”]。 如果app.subdomainOffset为3，则ctx.subdomains为[“ tobi”]。
+
+#### request.is(types...)
+
+检查传入的请求是否包含“ Content-Type”头字段，并且其中包含任何给定的mime类型。 如果没有请求正文，则返回null。 如果没有内容类型，或者匹配失败，则返回false。 否则，它将返回匹配的内容类型。
+
+```js
+// With Content-Type: text/html; charset=utf-8
+ctx.is('html'); // => 'html'
+ctx.is('text/html'); // => 'text/html'
+ctx.is('text/*', 'text/html'); // => 'text/html'
+
+// When Content-Type is application/json
+ctx.is('json', 'urlencoded'); // => 'json'
+ctx.is('application/json'); // => 'application/json'
+ctx.is('html', 'application/*'); // => 'application/json'
+
+ctx.is('html'); // => false
+```
+
+例如，如果希望确保只将图像发送到给定路由
+
+```js
+if (ctx.is('image/*')) {
+  // process
+} else {
+  ctx.throw(415, 'images only!');
+}
+```
+
+#### Content Negotiation
+
+Koa的请求对象包括由接受者和谈判者提供支持的有用的内容协商实用程序。 这些实用程序是：
+
+request.accepts（类型）
+
+request.acceptsEncodings（types）
+
+request.acceptsCharsets（charsets）
+
+request.acceptsLanguages（langs）
+
+如果未提供任何类型，则返回所有可接受的类型。
+
+如果提供了多种类型，则将返回最佳匹配。 如果未找到匹配项，则返回false，您应该向客户端发送406“不可接受”响应。
+
+如果缺少可接受的标头（任何类型都可接受），则将返回第一种类型。 因此，您提供的类型的顺序很重要。
+
+#### request.accepts(types)
+
+检查给定类型是否可接受，如果为真则返回最佳匹配，否则为假。类型值可以是一个或多个mime类型字符串，如“application/json”，扩展名如“json”，或数组["json"， "html"， "text/plain"]。
+
+```js
+// Accept: text/html
+ctx.accepts('html');
+// => "html"
+
+// Accept: text/*, application/json
+ctx.accepts('html');
+// => "html"
+ctx.accepts('text/html');
+// => "text/html"
+ctx.accepts('json', 'text');
+// => "json"
+ctx.accepts('application/json');
+// => "application/json"
+
+// Accept: text/*, application/json
+ctx.accepts('image/png');
+ctx.accepts('png');
+// => false
+
+// Accept: text/*;q=.5, application/json
+ctx.accepts(['html', 'json']);
+ctx.accepts('html', 'json');
+// => "json"
+
+// No Accept header
+ctx.accepts('html', 'json');
+// => "html"
+ctx.accepts('json', 'html');
+// => "json"
+```
+
+您可以根据需要多次调用ctx.accept()，或者使用开关
+
+```js
+switch (ctx.accepts('json', 'html', 'text')) {
+  case 'json': break;
+  case 'html': break;
+  case 'text': break;
+  default: ctx.throw(406, 'json, html, or text only');
+}
+```
+
+#### request.acceptsEncodings(encodings)
+
+检查编码是否可接受，如果为真则返回最佳匹配，否则为假。注意，您应该将identity作为编码之一
+
+```js
+// Accept-Encoding: gzip
+ctx.acceptsEncodings('gzip', 'deflate', 'identity');
+// => "gzip"
+
+ctx.acceptsEncodings(['gzip', 'deflate', 'identity']);
+// => "gzip"
+```
+
+当没有给出任何参数时，所有可接受的编码都作为数组返回
+
+```js
+// Accept-Encoding: gzip, deflate
+ctx.acceptsEncodings();
+// => ["gzip", "deflate", "identity"]
+
+```
+
+注意，如果客户端显式发送标识，则标识编码(即无编码)可能是不可接受的;q=0。尽管这是一种边缘情况，您仍然应该处理这种方法返回false的情况。
+
+#### request.acceptsCharsets(charsets)
+
+检查是否可以接受字符集，如果是，则返回最佳匹配，否则为假。
+
+```js
+// Accept-Charset: utf-8, iso-8859-1;q=0.2, utf-7;q=0.5
+ctx.acceptsCharsets('utf-8', 'utf-7');
+// => "utf-8"
+
+ctx.acceptsCharsets(['utf-7', 'utf-8']);
+// => "utf-8"
+```
+当没有参数时，所有被接受的字符集都作为数组返回
+
+```js
+// Accept-Charset: utf-8, iso-8859-1;q=0.2, utf-7;q=0.5
+ctx.acceptsCharsets();
+// => ["utf-8", "utf-7", "iso-8859-1"]
+```
+
+#### request.acceptsLanguages(langs)
+
+检查langs是否可接受，如果为真则返回最佳匹配，否则为假。
+
+```js
+// Accept-Language: en;q=0.8, es, pt
+ctx.acceptsLanguages('es', 'en');
+// => "es"
+
+ctx.acceptsLanguages(['en', 'es']);
+// => "es"
+```
+
+当没有参数时，所有被接受的语言都作为数组返回
+
+```js
+// Accept-Language: en;q=0.8, es, pt
+ctx.acceptsLanguages();
+// => ["es", "pt", "en"]
+```
+
+#### request.idempotent
+
+检查请求是否是幂等的。
+
+#### request.socket
+
+返回的socket请求。
+
+#### request.get(field)
+
+返回请求头。
+
+Return request header.
