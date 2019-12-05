@@ -33,3 +33,105 @@ app.use(async ctx => {
 
 app.listen(3000)
 ```
+
+### cascading
+
+Koa中间件以一种您可能已经习惯使用类似工具的更传统的方式进行级联-以前这很难使用户易于使用节点的回调。 但是，使用异步功能，我们可以实现“真正的”中间件。 与Connect的实现相反，该实现仅通过一系列功能传递控制权直到一个返回，Koa调用“下游”，然后控制流向“上游”。
+
+以下示例以“ Hello World”响应，但是首先请求流经x响应时间并记录中间件以标记请求何时开始，然后继续通过响应中间件产生控制权。 当中间件调用next（）时，函数将挂起并将控制权传递给所定义的下一个中间件。 在没有更多的中间件要在下游执行时，堆栈将解散，并且每个中间件都将恢复执行其上游行为。
+
+```js
+const Koa = require('koa')
+const app = new Koa()
+
+// logger
+
+app.use(async (ctx, next) => {
+  await next()
+  const rt = ctx.response.get('X-Response-Time');
+  console.log(`${ctx.method} ${ctx.url} - ${rt}`);
+})
+
+// x-response-time
+
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  ctx.set('X-Response-Time', `${ms}ms`);
+});
+
+// response
+
+app.use(async ctx => {
+  ctx.body = 'hello world'
+})
+
+app.listen(3000)
+```
+
+### settings
+
+应用程序设置是应用程序实例上的属性，目前支持以下设置
+
+app.env默认设置为NODE_ENV或“development”
+
+当真正的代理报头字段将被信任时
+
+subdomainoffset .subdomains忽略[2]的偏移量
+
+#### app.listen(...)
+
+Koa应用程序不是HTTP服务器的一对一表示。 可以将一个或多个Koa应用程序安装在一起，以使用单个HTTP服务器形成更大的应用程序。
+
+创建并返回一个HTTP服务器，将给定的参数传递给Server＃listen（）。 这些参数记录在nodejs.org上。 以下是绑定到端口3000的无用的Koa应用程序：
+
+```js
+const koa = require('koa')
+const app = new koa()
+app.listen(3000)
+```
+这个app.listen(…)方法只是为下面的内容添加了一些修饰
+
+```js
+const http = require('http')
+const koa = require('koa')
+const app = new koa()
+http.createServer(app.callback()).listen(3000)
+```
+
+这意味着您可以启动与HTTP和HTTPS相同的应用程序，也可以在多个地址上启动：
+
+```js
+const http = require('http');
+const https = require('https');
+const Koa = require('koa');
+const app = new Koa();
+http.createServer(app.callback()).listen(3000);
+https.createServer(app.callback()).listen(3001);
+```
+
+#### app.callback()
+
+返回适合于http.createServer（）方法的回调函数来处理请求。 您也可以使用此回调函数将Koa应用程序安装在Connect / Express应用程序中。
+
+#### app.use(function)
+
+将给定的中间件功能添加到此应用程序
+
+#### app.keys=
+
+Set signed cookie keys.
+
+这些被传递给KeyGrip，但是你也可以传递你自己的KeyGrip实例。例如，以下内容是可以接受的
+
+```js
+app.keys = ['im a newer secret', 'i like turtle'];
+app.keys = new KeyGrip(['im a newer secret', 'i like turtle'], 'sha256');
+```
+
+这些键可以旋转，并在使用{signed: true}选项签署cookie时使用
+
+```js
+ctx.cookies.set('name', 'tobi', { signed: true })
+```
