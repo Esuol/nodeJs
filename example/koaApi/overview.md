@@ -135,3 +135,39 @@ app.keys = new KeyGrip(['im a newer secret', 'i like turtle'], 'sha256');
 ```js
 ctx.cookies.set('name', 'tobi', { signed: true })
 ```
+
+#### app.context
+
+app.context是从中创建ctx的原型。 您可以通过编辑app.context向ctx添加其他属性。 这对于在ctx中添加要在整个应用程序中使用的属性或方法很有用，这可能会更高效（不需要中间件）和/或更容易（需要更少的require（）），但会更多地依赖于ctx，这可能是 被认为是反模式。
+
+例如，从ctx向数据库添加引用
+
+```js
+app.context.db  =  db()
+app.use(async ctx => {
+  console.log(ctx.db)
+})
+```
+ctx上的许多属性都是使用getter、setter和Object.defineProperty()来定义的。您只能通过在app.context上使用Object.defineProperty()来编辑这些属性(不推荐)。见https://github.com/koajs/koa/issues/652。
+
+安装的应用程序目前使用父类的ctx和设置。因此，挂载的应用程序实际上只是中间件组。
+
+#### Error Handling
+
+默认情况下，将所有错误输出到stderr，除非app.silent为真。默认的错误处理程序在出错时也不会输出错误。状态是404或err。公开是正确的。要执行自定义错误处理逻辑(如集中式日志记录)，可以添加一个“错误”事件监听器
+
+```js
+app.on('error', err => {
+  log.error('server error', err)
+})
+```
+
+如果错误发生在req/res循环中，无法响应客户端，也会传递上下文实例:
+
+```js
+app.on('error', (err, ctx) => {
+  log.error('server error', err, ctx)
+});
+```
+
+当发生错误并且仍然有可能响应客户端（即没有数据写入套接字）时，Koa会以500“内部服务器错误”进行适当响应。 在任何一种情况下，都会出于记录目的发出应用程序级别的“错误”。
