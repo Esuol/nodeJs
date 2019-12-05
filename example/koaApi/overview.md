@@ -192,3 +192,183 @@ app.use(async ctx => {
 
 特定于上下文的方法和访问器。
 
+#### ctx.req
+
+Node's request object
+
+#### ctx.res
+
+Node's response object
+
+不支持绕过Koa的响应处理。避免使用以下节点属性
+
+res.statusCode
+
+res.writeHead()
+
+res.write()
+
+res.end()
+
+#### ctx.request
+
+A Koa request object
+
+#### ctx.response
+
+A Koa request object
+
+#### ctx.state
+
+推荐的用于通过中间件和前端视图传递信息的名称空间。
+
+```js
+ctx.state.user = await User.find(id)
+```
+
+#### ctx.app
+
+应用程序实例参考。
+
+#### ctx.app.emit
+
+Koa应用程序扩展了一个内部EventEmitter。ctx.app。emit发出带有类型的事件，类型由第一个参数定义。对于每个事件，都可以连接“监听器”，这是在发出事件时调用的函数。
+
+#### ctx.cookies.get(name, [options])
+
+使用选项获取Cookie名称：
+
+已签名要求的Cookie应该已签名
+
+Koa使用cookie模块，在其中简单地传递选项。
+
+#### ctx.cookies.set(name, value, [options])
+
+使用选项将cookie名称设置为value：
+
+maxAge一个数字，表示从Date.now（）开始的毫秒数
+
+签名cookie值
+
+Cookie过期日期过期
+
+路径cookie路径，默认为/'
+
+域Cookie域
+
+安全的安全cookie
+
+httpOnly服务器可访问的cookie，默认情况下为true
+
+覆盖一个布尔值，该布尔值指示是否覆盖以前设置的同名cookie（默认情况下为false）。 如果为true，则在设置此Cookie时，将从同一Cookie头中过滤出的所有具有相同名称（无论路径或域）的相同请求期间设置的所有Cookie。
+
+Koa使用cookie模块，在该模块中只传递选项。
+
+#### ctx.throw([status], [msg], [properties])
+
+Helper方法抛出一个.status属性默认为500的错误，这将允许Koa做出适当的响应。允许下列组合
+
+```js
+ctx.throw(400);
+ctx.throw(400, 'name required');
+ctx.throw(400, 'name required', { user: user });
+```
+
+例如ctx。throw(400， 'name required')相当于
+
+```js
+const err = new Error('name required');
+err.status = 400;
+err.expose = true;
+throw err;
+```
+
+请注意，这些是用户级别的错误，并带有err.expose标记，这意味着该消息适用于客户端响应，对于错误消息，通常情况并非如此，因为您不想泄漏故障详细信息。
+
+可以选择传递一个按原样合并到错误中的属性对象，该属性对象用于修饰机器友好的错误，这些错误会报告给上游的请求者。
+
+```js
+ctx.throw(401, 'access_denied', { user: user });
+```
+
+Koa使用http-errors来创建错误。状态只能作为第一个参数传递。
+
+#### ctx.assert(value, [status], [msg], [properties])
+
+方法来抛出类似于.throw()的错误。类似于node的assert()方法。
+
+```js
+ctx.assert(ctx.state.user, 401, 'User not found. Please login!');
+```
+
+Koa对断言使用http-assert。
+
+### ctx.respond
+
+要绕过Koa的内置响应处理，您可以显式设置ctx.respond = false;。 如果您要写入原始res对象，而不是让Koa为您处理响应，请使用此方法。
+
+请注意，Koa不支持使用此功能。 这可能会破坏Koa中间件和Koa本身的预期功能。 使用此属性被视为黑客，并且对于那些希望在Koa中使用传统fn（req，res）函数和中间件的人来说只是一种便利。
+
+#### Request aliases
+
+下面的访问器和别名请求等价物
+
+```js
+ctx.header
+ctx.headers
+ctx.method
+ctx.method=
+ctx.url
+ctx.url=
+ctx.originalUrl
+ctx.origin
+ctx.href
+ctx.path
+ctx.path=
+ctx.query
+ctx.query=
+ctx.querystring
+ctx.querystring=
+ctx.host
+ctx.hostname
+ctx.fresh
+ctx.stale
+ctx.socket
+ctx.protocol
+ctx.secure
+ctx.ip
+ctx.ips
+ctx.subdomains
+ctx.is()
+ctx.accepts()
+ctx.acceptsEncodings()
+ctx.acceptsCharsets()
+ctx.acceptsLanguages()
+ctx.get()
+```
+
+#### Response aliases
+
+以下访问器和别名响应当量
+
+```js
+ctx.body
+ctx.body=
+ctx.status
+ctx.status=
+ctx.message
+ctx.message=
+ctx.length=
+ctx.length
+ctx.type=
+ctx.type
+ctx.headerSent
+ctx.redirect()
+ctx.attachment()
+ctx.set()
+ctx.append()
+ctx.remove()
+ctx.lastModified=
+ctx.etag=
+```
+
