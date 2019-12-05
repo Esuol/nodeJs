@@ -730,3 +730,407 @@ ctx.acceptsLanguages();
 返回请求头。
 
 Return request header.
+
+### response
+
+Koa响应对象是node的普通响应对象之上的一个抽象，它提供了对日常HTTP服务器开发有用的附加功能。
+
+#### response.header
+
+Response header object.
+
+#### response.headers
+
+Response header object. Alias as response.header.
+
+#### response.socket
+
+Request socket.
+
+#### response.status
+
+得到响应状态。默认情况下,响应。状态设置为404，不像node的res.statusCode默认为200。
+
+#### response.status=
+
+Set response status via numeric code:
+
+100 "continue"
+
+101 "switching protocols"
+
+102 "processing"
+
+200 "ok"
+
+201 "created"
+
+202 "accepted"
+
+203 "non-authoritative information"
+
+204 "no content"
+
+205 "reset content"
+
+206 "partial content"
+
+207 "multi-status"
+
+208 "already reported"
+
+226 "im used"
+
+300 "multiple choices"
+
+301 "moved permanently"
+
+302 "found"
+
+303 "see other"
+
+304 "not modified"
+
+305 "use proxy"
+
+307 "temporary redirect"
+
+308 "permanent redirect"
+
+400 "bad request"
+
+401 "unauthorized"
+
+402 "payment required"
+
+403 "forbidden"
+
+404 "not found"
+
+405 "method not allowed"
+
+406 "not acceptable"
+
+407 "proxy authentication required"
+
+408 "request timeout"
+
+409 "conflict"
+
+410 "gone"
+
+411 "length required"
+
+412 "precondition failed"
+
+413 "payload too large"
+
+414 "uri too long"
+
+415 "unsupported media type"
+
+416 "range not satisfiable"
+
+417 "expectation failed"
+
+418 "I'm a teapot"
+
+422 "unprocessable entity"
+
+423 "locked"
+
+424 "failed dependency"
+
+426 "upgrade required"
+
+428 "precondition required"
+
+429 "too many requests"
+
+431 "request header fields too large"
+
+500 "internal server error"
+
+501 "not implemented"
+
+502 "bad gateway"
+
+503 "service unavailable"
+
+504 "gateway timeout"
+
+505 "http version not supported"
+
+506 "variant also negotiates"
+
+507 "insufficient storage"
+
+508 "loop detected"
+
+510 "not extended"
+
+511 "network authentication required"
+
+NOTE:不要太担心记忆这些字符串，如果你有一个打字错误，一个错误将被抛出，显示这个列表，所以你可以做一个修正。
+
+#### response.message
+
+获取响应状态消息。默认情况下,响应。消息与response.status关联。
+
+#### response.message=
+
+将响应状态消息设置为给定的值。
+
+Set response status message to the given value.
+
+#### response.length=
+
+将响应状态消息设置为给定的值。
+
+Set response Content-Length to the given value.
+
+#### response.length
+
+当出现时，返回响应内容长度作为一个数字，或者从ctx推断。可能时为体，或未定义。
+
+Return response Content-Length as a number when present, or deduce from ctx.body when possible, or undefined.
+
+#### response.body
+
+Get response body.
+
+#### response.body=
+
+将响应体设置为以下之一
+
+string written
+
+Buffer written
+
+Stream piped
+
+Object || Array json-stringified
+
+null no content response
+
+如果响应。状态未设置，Koa将自动设置状态为200或204。
+
+Koa并不防备可能放入响应主体的所有内容-函数没有有意义的序列化，根据您的应用程序返回布尔值可能是有意义的，并且尽管错误起作用，但它可能无法像某些人预期的那样起作用 错误的属性不可枚举。 我们建议您在应用中添加中间件，以声明每个应用的主体类型。 一个示例中间件可能是：
+
+```js
+app.use(async (ctx, next) => {
+  await next()
+
+  ctx.assert.equal('object', typeof ctx, 500, 'some dev did something wrong')
+})
+```
+#### String
+
+Content-Type默认为text/html或text/plain，两者的默认字符集都是utf-8。还设置了Content-Length字段。
+
+The Content-Type is defaulted to text/html or text/plain, both with a default charset of utf-8. The Content-Length field is also set.
+
+#### Buffer
+
+Content-Type默认为application / octet-stream，并且Content-Length也已设置。
+
+The Content-Type is defaulted to application/octet-stream, and Content-Length is also set.
+
+#### Stream
+
+内容类型默认为application/octe -stream。
+
+无论何时将流设置为响应体，.onerror都将自动添加为错误事件的侦听器，以捕获任何错误。此外，无论何时关闭请求(即使是提前关闭)，流都会被销毁。如果您不想要这两个特性，不要直接将流设置为主体。例如，在将主体设置为代理中的HTTP流时，您可能不希望这样做，因为这会破坏底层连接。
+
+更多信息见:https://github.com/koajs/koa/pull/612。
+
+下面是一个不自动销毁流的流错误处理示例:
+
+Here's an example of stream error handling without automatically destroying the stream:
+
+```js
+const PassThrough = require('stream').PassThrough;
+
+app.use(async ctx => {
+  ctx.body = someHTTPStream.on('error', ctx.onerror).pipe(PassThrough());
+});
+```
+#### Object
+
+Content-Type默认为application/json。这包括普通对象{foo: 'bar'}和数组['foo'， 'bar']。
+
+The Content-Type is defaulted to application/json. This includes plain objects { foo: 'bar' } and arrays ['foo', 'bar'].
+
+#### response.get(field)
+
+获取不区分大小写字段的响应标题字段值。
+
+Get a response header field value with case-insensitive field.
+
+```js
+const etag = ctx.response.get('ETag');
+```
+#### response.set(field, value)
+
+将响应头字段设置为值
+
+Set response header field to value:
+
+```js
+ctx.set('Cache-Control', 'no-cache');
+```
+
+#### response.append(field, value)
+
+附加附加的标题字段值val。
+
+Append additional header field with value val.
+
+```js
+ctx.append('Link', '<http://127.0.0.1/>');
+```
+#### response.set(fields)
+
+用一个对象设置几个响应头字段
+
+```js
+ctx.set({
+  'Etag': '1234',
+  'Last-Modified': date
+});
+```
+
+这将委托给setHeader，它将根据指定的键设置或更新标头，而不会重置整个标头。
+
+This delegates to setHeader which sets or updates headers by specified keys and doesn't reset the entire header.
+
+#### response.remove(field)
+
+除去头字段。
+
+Remove header field.
+
+#### response.type
+
+获取不包含“charset”等参数的响应内容类型。
+
+Get response Content-Type void of parameters such as "charset".
+
+```js
+const ct = ctx.type;
+// => "image/png"
+```
+### response.type=
+
+通过mime字符串或文件扩展名设置响应内容类型。
+
+Set response Content-Type via mime string or file extension.
+
+```js
+ctx.type = 'text/plain; charset=utf-8';
+ctx.type = 'image/png';
+ctx.type = '.png';
+ctx.type = 'png';
+```
+注意:适当时为您选择charset，例如response。type = 'html'将默认为"utf-8"。如果需要覆盖charset，请使用ctx。设置('Content-Type'， 'text/html')直接将响应头字段设置为值。
+
+Note: when appropriate a charset is selected for you, for example response.type = 'html' will default to "utf-8". If you need to overwrite charset, use ctx.set('Content-Type', 'text/html') to set response header field to value directly.
+
+#### response.is(types...)
+
+与ctx.request.is（）非常相似。 检查响应类型是否为提供的类型之一。 这对于创建操纵响应的中间件特别有用。
+
+例如，这是一个中间件，可最小化除流之外的所有HTML响应。
+
+```js
+const minify = require('html-minifier');
+
+app.use(async (ctx, next) => {
+  await next();
+
+  if (!ctx.response.is('html')) return;
+
+  let body = ctx.body;
+  if (!body || body.pipe) return;
+
+  if (Buffer.isBuffer(body)) body = body.toString();
+  ctx.body = minify(body);
+});
+```
+
+#### response.redirect(url, [alt])
+
+执行[302]重定向到url。
+
+字符串“back”是特殊大小写的，以便在没有使用“alt”或“/”时提供引用支持。
+
+Perform a [302] redirect to url.
+
+The string "back" is special-cased to provide Referrer support, when Referrer is not present alt or "/" is used.
+
+```js
+ctx.redirect('back');
+ctx.redirect('back', '/index.html');
+ctx.redirect('/login');
+ctx.redirect('http://google.com');
+```
+
+要更改302的默认状态，只需在调用之前或之后分配状态。要更改主体，请在此调用之后分配它
+
+To alter the default status of 302, simply assign the status before or after this call. To alter the body, assign it after this call:
+
+```js
+ctx.status = 301;
+ctx.redirect('/cart');
+ctx.body = 'Redirecting to shopping cart';
+
+```
+#### response.attachment([filename], [options])
+
+将内容配置设置为“附件”，以指示客户端提示下载。可选地指定下载的文件名和一些选项。
+
+Set Content-Disposition to "attachment" to signal the client to prompt for download. Optionally specify the filename of the download and some options.
+
+#### response.headerSent
+
+检查是否已经发送了响应标头。用于查看客户端是否可能在出错时得到通知。
+
+Check if a response header has already been sent. Useful for seeing if the client may be notified on error.
+
+#### response.lastModified
+
+如果存在最后修改的标头，则将其作为日期返回。
+
+Return the Last-Modified header as a Date, if it exists.
+
+#### esponse.lastModified=
+
+将Last-Modified标头设置为适当的UTC字符串。 您可以将其设置为日期或日期字符串。
+
+Set the Last-Modified header as an appropriate UTC string. You can either set it as a Date or date string.
+
+```js
+ctx.response.lastModified = new Date();
+```
+
+#### response.etag=
+
+Set the ETag of a response including the wrapped "s. Note that there is no corresponding response.etag getter.
+
+设置包括包装的响应的ETag。注意没有相应的响应。etag getter。
+
+```js
+ctx.response.etag = crypto.createHash('md5').update(ctx.body).digest('hex');
+```
+
+#### response.vary(field)
+
+Vary on field.
+
+不同领域。
+
+#### response.flushHeaders()
+
+刷新任何设置的标题，并开始正文。
+
+Flush any set headers, and begin the body.
