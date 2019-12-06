@@ -17,7 +17,8 @@
   "dependencies": {
     "@types/koa": "^2.11.0",
     "@types/node": "^12.12.14",
-    "koa": "^2.11.0"
+    "koa": "^2.11.0",
+    "koa-convert": "^1.2.0"
   },
   "devDependencies": {
     "ts-node": "^8.5.2",
