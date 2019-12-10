@@ -1,4 +1,4 @@
-const mime = {
+const mimes = {
   'css': 'text/css',
   'less': 'text/css',
   'gif': 'image/gif',
@@ -20,4 +20,6 @@ const mime = {
   'xml': 'text/xml'
 }
 
-module.exports = mime
+export {}
+
+module.exports = mimes
