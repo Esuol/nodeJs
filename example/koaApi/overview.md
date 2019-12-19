@@ -1134,3 +1134,17 @@ Vary on field.
 刷新任何设置的标题，并开始正文。
 
 Flush any set headers, and begin the body.
+
+#### koa.1x 异常处理
+
+```js
+app.use(function *(next) {
+  try {
+    yield next
+  } catch (err) {
+    this.status = err.status || 500
+    this.body = err
+    this.app.emit('error', err, this)
+  }
+})
+```
