@@ -93,3 +93,195 @@ readStream.on('end', function () {
 ##### Readable Stream
 
 以上提到的所有能产出数据的 Stream 对象，都叫做 Readable Stream ，即可以从中读取数据的 Stream 对象。Readable Stream 对象可以监听data end事件，还有一个pipe API（下文会重点介绍）。你可以通过 构造函数 来实现一个自定义的 Readable Stream （上文三个也不过是继承、实现了这个构造函数而已）。不过一般情况下，我们无需这么做，因此这里了解一下即可。
+
+### 到哪里去
+
+知道了从哪里来，就得知道往哪里去。还是同样的思考方法，想一下一个 server 端程序，数据通常会“流”向何方？
+
+控制台，标准输出
+
+文件，写入文件内容
+
+http 请求，res
+
+同理，涉及到数据“流”入的程序，也都可以用 Stream 来操作，而且要介绍一个新的 API —— pipe ，它会自动将数据从 srouce 导流向 dest ，就上上文的图一样。可以通过下面的例子来体会。
+
+#### 控制台，标准输出
+
+```js
+process.stdin.pipe(process.stdout)
+```
+
+拿这句代码是对比上文中的图（source 管道流向 dest），是不是一样？从中体会一下pipe的作用，有了pipe我们就不用去关心下面代码中的chunk了（关于chunk是什么，下文会详细介绍，暂时先不管），也不用去手动监听data end事件了。
+
+```js
+process.stdin.on('data', function (chunk) {
+    console.log(chunk.toString())
+})
+```
+
+#### 写入文件
+
+```js
+var fs = require('fs')
+var readStream = fs.createReadStream('./file1.txt')
+var writeStream = fs.createWriteStream('./file2.txt')
+readStream.pipe(writeStream)
+```
+
+fs.createReadStream可以创建一个文件的可读流，对应的fs.createWriteStream可以创建一个可写流，通过pipe将他们联通。这样它们就能像上文图中那样，数据从file1.txt通过一根管子一点一点的流向了file2.txt。
+
+这就是复制大文件的方式，不是先读后写，而是边读边写……
+
+#### http res
+
+根据上面两个 demo 下面的代码应该也比较好理解了，下面的代码写的就是读取file1.txt内容然后通过 http 协议返回。浏览器访问http://localhost:8080/即可看到效果，很简单。
+
+```js
+var http = require('http')
+var fs = require('fs')
+function serverCallback(req, res) {
+    var readStream = fs.createReadStream('./file1.txt')
+    res.writeHead(200, {'Content-type': 'text/html'})
+    readStream.pipe(res)
+}
+http.createServer(serverCallback).listen(8080)
+```
+我们来将这段代码和 web 应用 这一节中的 demo ，关键代码对比一下
+
+```js
+// 之前的 demo
+res.writeHead(200, {'Content-type': 'text/html'})
+res.write('hello nodejs')
+res.end()
+
+// 这里的代码
+var readStream = fs.createReadStream('./file1.txt')
+res.writeHead(200, {'Content-type': 'text/html'})
+readStream.pipe(res)
+```
+
+对比看来，res.writeHead该怎么写还是怎么写，不受影响。主要的就是之前的res.write('hello nodejs')换成了readStream.pipe(res)，之前是一次性输出内容，现在是通过 Stream 一点一点输出内容。
+
+最后，之前的res.end()在当前的代码中没写，不过不会影响我们代码的运行，因为readStream.pipe(res)执行的时候，会自动监听到end事件然后执行res.end()，因此不需要我们手动再写一遍。
+
+PS：在下文我们会提到，使用 Stream 处理 http res 会提高性能。因为这样直接输出的是二进制，而res.write('hello nodejs')输出的是字符串，还得经过编码转换。这里先提一句，下文再详细说。
+
+#### Writable Stream
+
+对比上文的 Readable Stream ，这里能接收数据“流”入的对象，都称为 Writable Stream 。Writable Stream 对象能作为参数传递给pipe方法，能接收数据。你可以通过 构造函数 实现自己的 Writable Stream 对象，上面讲到的三个也都是继承、实现构造函数。不过一般情况下我们无需这么做，了解即可。
+
+### 再看pipe
+
+pipe的使用有严格要求。例如a.pipe(b)时，a必须是一个可读流，即 Readable Stream 对象（或具有相同功能的对象），而b必须是一个可写流，即 Writable Stream 对象（或者有相同功能的对象），否则会报错。
+
+这里“或者有相同功能的对象”卖了个关子，见下文。
+
+## 有没有中转站？
+
+数据从来源流出来，然后直奔目的地而去，这种直来直去的模式肯定是不能满足所有应用场景的。就像上文图中，水从 source 直接流向 dest 其实是没有意义的，如果中间再能加一些东西（如过滤杂质、增加微量元素、高温杀菌等）那就有意义了。
+
+### 既可读又可写
+
+上文提到，Readable Stream 对象是可读流，数据能从其中“流”出，Writable Stream 对象是可写流，数据能“流”向其中。其实，还有一种类型的流，具备两者的功能 —— Duplex Stream ，双工流，既可读又可写。这样说来，Duplex Stream 对象既可以有pipe接口，又可以作为pipe方法的参数。即：
+
+```js
+// 其中 b c d 是 Duplex Stream 对象，双工流
+process.stdin.pipe(b)
+b.pipe(c)
+c.pipe(d)
+d.pipe(process.stdout)
+
+// 也可以写成
+process.stdin.pipe(b).pipe(c).pipe(d).pipe(process.stdout)
+```
+
+如上代码，这样b c d其实就是一个一个的“中转站”、“过滤器”，这样数据就真的“流”起来了，像水一样。
+
+### Duplex Stream
+
+Duplex Stream 在实际应用不多，被举例最多的就是gzip压缩的功能，即读取一个文件，然后压缩保存为另一个文件。其中的zlib.createGzip()返回的就是一个 Duplex Stream 对象。
+
+```js
+var fs = require('fs')
+var zlib = require('zlib')
+var readStream = fs.createReadStream('./file1.txt')
+var writeStream = fs.createWriteStream('./file1.txt.gz')
+readStream.pipe(zlib.createGzip())
+          .pipe(writeStream)
+```
+
+同理，你可以根据 构造函数 实现自己的 Duplex Stream 对象，不再赘述。
+
+最后，简单实现一个能在线压缩、下载的 web server
+
+
+```js
+var http = require('http')
+var fs = require('fs')
+var zlib = require('zlib')
+function serverCallback(req, res) {
+    var readStream = fs.createReadStream('./file1.txt')
+    res.writeHead(200, {'Content-type': 'application/x-gzip'})  // 注意这里返回的 MIME 类型
+    readStream.pipe(zlib.createGzip())  // 一行代码搞定压缩功能
+              .pipe(res)
+}
+http.createServer(serverCallback).listen(8080)
+```
+
+## 是什么在流动
+
+上文一直说数据在流动，从哪里来，到哪里去，中间经历了什么，就是没有说这个在流动的数据，到底是什么，即代码中的chunk是什么？
+
+```js
+req.on('data', function (chunk) {
+    // “一点一点”接收内容
+    data += chunk.toString()
+})
+```
+
+运行代码，打印chunk得到的结果是<Buffer 61 61 61 0a 62 62 62 0 ... >，看前面<Buffer就知道，它是 Buffer 类型的数据。打印chunk instanceof Buffer即可得到true。
+
+### Buffer 是什么
+
+Buffer 对象就是二进制在 JS 中的表述形式，即 Buffer 对象就是二进制类型的数据。上文<Buffer 61 61 61 0a 62 62 62 0 ... >看起来像是数组的形式，但是它却不是数组，因为它的每个元素只能是一个 16 进制的两位数（换算成 10 进制即 0-255 之间的数字），就是一个字节。
+
+### Buffer 和字符串的关系
+
+Buffer 是二级制，和字符串完全是两码事儿，但是他们可以相互转换 —— 前提是规定好用哪个编码规范。
+
+```js
+var str = '深入浅出nodejs'
+var buf = new Buffer(str, 'utf-8')
+console.log(buf)  // <Buffer e6 b7 b1 e5 85 a5 e6 b5 85 e5 87 ba 6e 6f 64 65 6a 73>
+console.log(buf.toString('utf-8'))  // 深入浅出nodejs
+```
+
+以上代码使用utf-8编码对二进制和字符串进行了转换，不过其实 JS 默认就是utf-8编码。
+
+### 为何流动的数据是 Buffer 类型？
+
+计算机真正能识别的就是二进制数据。我们在程序中使用字符串、数字、数组等都是有特定的语言和环境的，是一个封闭的开发环境。代码真正执行的时候还需要这个环境做很多其他底层的工作，并不是说计算机底层就认识字符串、数字和数组。
+
+但是“流”动的数据却可能会跑出这个环境，它会涉及到网络 IO 和文件 IO 等其他环境。即，程序从 http 请求读取数据、或者发送数据给 http 请求，得用一个两者都认识的格式才行，那就只能是二进制了。
+
+另外，反过来思考，不用二进制用什么呢？用字符串？那流动的数据还可能是视频和图片呢，字符串表述不了。
+
+### Buffer 的好处
+
+Buffer 能提高 http 请求的性能，《深入浅出 nodejs》书中提到，使用stream.pipe(res)在特定情况下，QPS 能从 2k+ 提升到 4k+
+
+
+```js
+// 不使用 Stream
+res.write('hello nodejs')
+res.end()
+
+// 使用 Stream
+var readStream = fs.createReadStream('./file1.txt')
+readStream.pipe(res)
+```
+
+## 总结
+
+其实洋洋洒洒这么多，主要就是解决开头提到的“一点一点”的从 req 中接收传递来的数据，从而引申出 Stream 这个概念，并且介绍了 Stream 中比较重要的内容。以后只要遇到data end事件，或者遇到大数据内容处理，或者遇到 IO 的性能问题等，都可以考虑到 Stream 。Stream 是 server 端比较重要的概念，其基础知识必须全面了解。
