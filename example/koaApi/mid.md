@@ -165,3 +165,44 @@ middlewares.push(mid1, mid2);
 // 调用方式
 compose(middlewares)(null, response);
 ```
+
+## 如何做到兼容
+
+可以看到的是，koa1与koa2对于中间件的实现还是有着很多的不同的，将koa1的中间件直接拿到koa2下面来使用肯定是会出现错误的，如何兼容这两个版本也成了一个问题，koa团队写了一个包来是koa1的中间件可以用于koa2中，叫做koa-convert，先来看看这个包怎么使用：
+
+```js
+function *mid3(next) {
+    console.log(2, 'koa1的中间件');
+    yield next;
+    console.log(3, 'koa1的中间件');
+}
+convert.compose(mid3)
+```
+
+来看下这个包实现的思路：
+
+```js
+// 将参数转为数组，对每一个koa1的中间件执行convert操作
+convert.compose = function (arr) {
+  if (!Array.isArray(arr)) {
+    arr = Array.from(arguments)
+  }
+  return compose(arr.map(convert))
+}
+// 关键在于convert的实现
+const convert = mw => (ctx, next) => {
+    // 借助co库，返回一个Promise，同时执行yield
+    return co.call(ctx, mw.call(ctx, createGenerator(next)));
+};
+
+function * createGenerator (next) {
+  /*
+     next为koa-compomse中：
+     function next () {
+         return dispatch(i + 1)
+     }
+  */
+  return yield next()
+  // 执行完koa1的中间件，又回到了利用await执行koa2中间件的正轨
+}
+```
