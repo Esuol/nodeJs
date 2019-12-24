@@ -108,3 +108,60 @@ function co(gen) {
 const gen = compose(middlewares);
 co(gen);
 ```
+
+## koa2 中间件
+
+随着node对于async/await的支持，貌似不需要再借助于co这种工具库了，直接利用原生的就好，于是koa也做出了改变，来看目前的koa-compose：
+
+```js
+function compose (middleware) {
+  // 参数检验
+  return function (context, next) {
+    // last called middleware #
+    let index = -1
+    return dispatch(0)
+    function dispatch (i) {
+      if (i <= index) return Promise.reject(new Error('next() called multiple times'))
+      index = i
+      let fn = middleware[i]
+      // 最后一个中间件的调用
+      if (i === middleware.length) fn = next
+      if (!fn) return Promise.resolve()
+      // 用Promise包裹中间件，方便await调用
+      try {
+        return Promise.resolve(fn(context, function next () {
+          return dispatch(i + 1)
+        }))
+      } catch (err) {
+        return Promise.reject(err)
+      }
+    }
+  }
+}
+```
+
+koa-compose利用了Promise，koa2的中间件的参数也有一个变为了两个，而且执行下一个的中间件利用的是await next()，要达到与上面的示例代码的相同效果，需要更改中间件的写法：
+
+```js
+const middlewares = [];
+const getTestMiddWare = (loggerA, loggerB) => async (ctx, next) => {
+    console.log(loggerA);
+    await next();
+    console.log(loggerB);
+};
+
+const mid1 = getTestMiddWare(1, 4),
+    mid2 = getTestMiddWare(2, 3);
+const response = async () => {
+    // 模拟异步读取数据库数据
+    const data = await getData();
+    console.log(data);
+};
+const getData = () => new Promise((resolve, reject) => {
+    setTimeout(() => resolve('数据已经取出'), 1000);
+});
+middlewares.push(mid1, mid2);
+
+// 调用方式
+compose(middlewares)(null, response);
+```
