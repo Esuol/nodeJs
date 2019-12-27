@@ -12,7 +12,7 @@ let getHeader = (reqClient) => {
 }
 
 //代理函数，options是代理设置，包括目标服务器ip，port等
-let proxy = (options) => {
+let proxyHttp = (options) => {
     let reqOptions = {
         hostname: options.host,
         port: options.port
@@ -75,5 +75,5 @@ let proxy = (options) => {
   }
 }
 
-module.exports = proxy;
+module.exports = proxyHttp;
 
