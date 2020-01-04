@@ -3,7 +3,7 @@ const fs = require('fs')
 
 const options = {
   key: fs.readFileSync('./keys/server.key'),
-  cert: fs.readFileSync('./keys/cserver.cert'),
+  cert: fs.readFileSync('./keys/server.cert'),
   requestCert: true,
   ca: [ fs.readFileSync('./keys/ca.crt')]
 }
