@@ -23,3 +23,18 @@ function getSession (req, res) {
     })
   }
 }
+
+// 响应时， 将新的session保存会缓存中
+
+function response(req, res) {
+  const writeHead = res.writeHead
+  res.writeHead = function () {
+    const cookies = res.getHeader('Set-Cookie')
+    const session = serialize('Set-Cookie', res.session.id)
+    cookies = Array.isArray(cookies) ? cookies.concat(session) : [cookies, session]
+    res.setHeader('Set-cookie', cookies)
+    // 保存回缓存
+    store.save(req.session)
+    return writeHead.apply(this, arguments)
+  }
+}
