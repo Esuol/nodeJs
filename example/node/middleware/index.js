@@ -34,3 +34,23 @@ const match = function(pathname, routes) {
     return stacks
   }
 }
+
+// 持续改进分发过程
+
+const distribution = function(req, res) {
+  let pathname =  url.parse(req.url).pathname
+  // 将请求方法变为小写
+  let method = req.method.toLowerCase()
+  // 获取all里面的中间件
+  let stacks = match(pathname, routes.all)
+  if(routes.hasOwnProperty(method)) {
+    // 根据请求方法分发，获取相关中间件
+    stacks.concat(match(pathname, routes[method]))
+  }
+  if(stacks.length) {
+    handle(req, res, stacks)
+  }else {
+    // 处理404请求
+    handle(req, res)
+  }
+}
