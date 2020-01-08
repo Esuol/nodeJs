@@ -75,3 +75,19 @@ const handle = function(req, res, stack) {
   // 启动执行
   next()
 }
+
+const handle500 = function(err, req, res, stack) {
+  // 选取异常处理中间件
+  stack = stack.filter(middleware => middleware.length === 4)
+  let next = function() {
+    // 从stack中取出中间件并执行
+    let middleware = stack.shift()
+    if(middleware) {
+      // 传递异常对象
+      middleware(err, req, res, stack)
+    }
+  }
+
+  // 启动执行
+  next()
+}
