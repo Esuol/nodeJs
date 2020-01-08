@@ -54,3 +54,24 @@ const distribution = function(req, res) {
     handle(req, res)
   }
 }
+
+// 异常处理
+const handle = function(req, res, stack) {
+  let next = function(err)  {
+    if(err) {
+      return handle500(err, req, res, stack)
+    }
+    // 从stack数组中取出中间件并执行
+    let middleware = stack.shift()
+    if(middleware) {
+      // 传入next函数自身，使中间件函数能够执行结束后进行递归
+      try {
+        middleware(req, res, next)
+      } catch(err) {
+        next(err)
+      }
+    }
+  }
+  // 启动执行
+  next()
+}
