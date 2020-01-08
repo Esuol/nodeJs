@@ -26,7 +26,7 @@ if(cluster.isMaster) { // 主控节点逻辑
       console.log('calculate main process end');
     }
   })
-
+  // 主线程服务
   http.createServer((req, res) => {
     res.writeHead(200, {'Content-Type': 'text/plain'})
     res.end('okay')
