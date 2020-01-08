@@ -18,4 +18,19 @@ app.use = function(path) {
   routes.all.push(handle)
 }
 
-const
+const match = function(pathname, routes) {
+  let stacks = []
+  for(let i =  0; i< routes.length; i++) {
+    let route = routes[i]
+    // 正则匹配
+    let reg = route.path.regexp
+    let matched = reg.exec(pathname)
+    if(matched)  {
+      // 抽取具体值
+      // 代码省略
+      // 将中间件保存起来
+      stacks = stacks.concat(route.stack)
+    }
+    return stacks
+  }
+}
