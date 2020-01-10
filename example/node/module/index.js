@@ -97,5 +97,24 @@ Module._resolveFilename = function(request, parent, isMain, options) {
   }
 
   // 依据给出的模块和遍历地址数组，以及是否为入口模块来查找模块路径
+  const filename = Module._findPath(request, paths, isMain);
+  if (!filename) {
+    const requireStack = [];
+    for (let cursor = parent; cursor; cursor = cursor.parent) {
+      requireStack.push(cursor.filename || cursor.id);
+    }
+    // 未找到模块，抛出异常（是不是很熟悉的错误）
+    let message = `Cannot find module '${request}'`;
+    if (requireStack.length > 0) {
+      message = message + "\nRequire stack:\n- " + requireStack.join("\n- ");
+    }
+
+    const err = new Error(message);
+    err.code = "MODULE_NOT_FOUND";
+    err.requireStack = requireStack;
+    throw err;
+  }
+  // 最终返回包含文件名的完整路径
+  return filename;
 }
 
