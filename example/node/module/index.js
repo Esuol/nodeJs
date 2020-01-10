@@ -56,3 +56,46 @@ Module._load = function(request, parent, isMain) {
   return module.exports
 }
 
+// 解析文件名称
+Module._resolveFilename = function(request, parent, isMain, options) {
+  if(NativeModule.canBeRequireByUsers(request)) {
+    // 优先加载内建模块
+    return request
+  }
+  let paths
+
+  // node require.resolve 函数使用的 options，options.paths 用于指定查找路径
+  if(typeof options === 'object' && options !== null) {
+    if(ArrayIsArray(options.paths)) {
+      const isRelative =
+        request.startsWith('./') ||
+        request.startsWith('../') ||
+        (isWindows && request.startsWith('.\\')) ||
+        request.startsWith('..\\')
+        if(isRelative) {
+          paths = options.paths
+        } else {
+          const fakeParent = new Module("", null);
+          paths = [];
+          for (let i = 0; i < options.paths.length; i++) {
+            const path = options.paths[i];
+            fakeParent.paths = Module._nodeModulePaths(path);
+            const lookupPaths = Module._resolveLookupPaths(request, fakeParent);
+            for (let j = 0; j < lookupPaths.length; j++) {
+              if (!paths.includes(lookupPaths[j])) paths.push(lookupPaths[j]);
+            }
+          }
+        }
+    } else if(options.paths === undefined) {
+      paths === Module._resolveLookupPaths(request, parent)
+    } else {
+      // .....
+    }
+  } else {
+    // 查找模块存在路径
+    paths = Module._resolveLookupPaths(request, parent);
+  }
+
+  // 依据给出的模块和遍历地址数组，以及是否为入口模块来查找模块路径
+}
+
