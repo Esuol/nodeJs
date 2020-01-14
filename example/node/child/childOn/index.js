@@ -1,4 +1,4 @@
-const cp = requie('child_process')
+const cp = require('child_process')
 
 const child1 = cp.fork('child.js')
 const child2 = cp.fork('child.js')
