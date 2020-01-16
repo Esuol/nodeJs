@@ -161,3 +161,84 @@ function race(iterable) {
     let settlementOccurred = false;
   });
 }
+
+// 6.Promise.allSettled()
+
+// 它返回一个Array的Promise，其元素具有以下类型特征：
+
+type SettlementObject<T> = FulfillmentObject<T> | RejectionObject;
+
+interface FulfillmentObject<T> {
+  status: 'fulfilled';
+  value: T;
+}
+
+interface RejectionObject {
+  status: 'rejected';
+  reason: unknown;
+}
+
+// 2 Promise.allSettled() 较复杂点的例子
+
+// 这个示例类似于.map()和Promise.all()示例(我们从其中借用了downloadText()函数):我们下载多个文本文件，这些文件的url存储在一个数组中。但是，这一次，咱们不希望在出现错误时停止，而是希望继续执行。Promise.allSettled()允许咱们这样做：
+
+const urls = [
+  'http://example.com/exists.txt',
+  'http://example.com/missing.txt',
+];
+
+const result = Promise.allSettled(
+  urls.map(u => downloadText(u)));
+result.then(
+  arr => assert.deepEqual(
+    arr,
+    [
+      {
+        status: 'fulfilled',
+        value: 'Hello!',
+      },
+      {
+        status: 'rejected',
+        reason: new Error('Not Found'),
+      },
+    ]
+));
+
+// Promise.allSettled() 的简化实现
+
+function allSettled(iterable) {
+  return new Promise((resolve, reject) => {
+    function addElementToResult(i, elem) {
+      result[i] = elem;
+      elementCount++;
+      if (elementCount === result.length) {
+        resolve(result);
+      }
+    }
+
+    let index = 0;
+    for (const promise of iterable) {
+      // Capture the current value of `index`
+      const currentIndex = index;
+      promise.then(
+        (value) => addElementToResult(
+          currentIndex, {
+            status: 'fulfilled',
+            value
+          }),
+        (reason) => addElementToResult(
+          currentIndex, {
+            status: 'rejected',
+            reason
+          }));
+      index++;
+    }
+    if (index === 0) {
+      resolve([]);
+      return;
+    }
+    let elementCount = 0;
+    const result = new Array(index);
+  });
+}
+
