@@ -95,3 +95,69 @@ function all(iterable) {
     const result = new Array(index);
   });
 }
+
+// race
+
+const promises = [
+  new Promise((resolve, reject) =>
+    setTimeout(() => resolve('result'), 100)), // (A)
+  new Promise((resolve, reject) =>
+    setTimeout(() => reject('ERROR'), 200)), // (B)
+];
+Promise.race(promises)
+  .then((result) => assert.equal( // (C)
+    result, 'result'));
+
+// 如果 Promise 被拒绝首先执行，在来看看情况是嘛样的：
+
+const promises = [
+  new Promise((resolve, reject) =>
+    setTimeout(() => resolve('result'), 200)),
+  new Promise((resolve, reject) =>
+    setTimeout(() => reject('ERROR'), 100)),
+];
+Promise.race(promises)
+  .then(
+    (result) => assert.fail(),
+    (err) => assert.equal(
+      err, 'ERROR'));
+
+// Promise.race() 在 Promise 超时下的情况
+function resolveAfter(ms, value=undefined) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(value), ms);
+  });
+}
+
+// resolveAfter() 主要做的是在指定的时间内，返回一个状态为 resolve 的 Promise，值为为传入的 value
+
+// 调用上面方法：
+
+function timeout(timeoutInMs, promise) {
+  return Promise.race([
+    promise,
+    resolveAfter(timeoutInMs,
+      Promise.reject(new Error('Operation timed out'))),
+  ]);
+}
+
+// race 简版实现
+
+function race(iterable) {
+  return new Promise((resolve, reject) => {
+    for (const promise of iterable) {
+      promise.then(
+        (value) => {
+          if (settlementOccurred) return;
+          settlementOccurred = true;
+          resolve(value);
+        },
+        (err) => {
+          if (settlementOccurred) return;
+          settlementOccurred = true;
+          reject(err);
+        });
+    }
+    let settlementOccurred = false;
+  });
+}
