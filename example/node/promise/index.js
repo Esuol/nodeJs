@@ -166,17 +166,17 @@ function race(iterable) {
 
 // 它返回一个Array的Promise，其元素具有以下类型特征：
 
-type SettlementObject<T> = FulfillmentObject<T> | RejectionObject;
+// type SettlementObject<T> = FulfillmentObject<T> | RejectionObject;
 
-interface FulfillmentObject<T> {
-  status: 'fulfilled';
-  value: T;
-}
+// interface FulfillmentObject<T> {
+//   status: 'fulfilled';
+//   value: T;
+// }
 
-interface RejectionObject {
-  status: 'rejected';
-  reason: unknown;
-}
+// interface RejectionObject {
+//   status: 'rejected';
+//   reason: unknown;
+// }
 
 // 2 Promise.allSettled() 较复杂点的例子
 
