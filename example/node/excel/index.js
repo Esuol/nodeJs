@@ -44,8 +44,8 @@ exports.write = function(req, res, next) {
     var filePath = uploadDir + filename + random + ".xlsx";
 
     fs.writeFile(filePath, result, 'binary', function(err) {
-        if (err) {
-            console.log(err);
+        if (error) {
+            console.log(error);
         }
     });
 }
